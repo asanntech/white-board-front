@@ -1,26 +1,26 @@
-'use client';
+'use client'
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import { useSession, signOut } from 'next-auth/react';
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useSession, signOut } from 'next-auth/react'
 
 export default function RoomPage() {
-  const router = useRouter();
+  const router = useRouter()
 
-  const { data: session, status } = useSession();
+  const { data: session, status } = useSession()
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      return router.push('/');
+      return router.push('/')
     }
-  }, [router, status]);
+  }, [router, status])
 
   if (status === 'loading') {
-    return <p>Loading...</p>;
+    return <p>Loading...</p>
   }
 
   if (status === 'unauthenticated') {
-    return <></>;
+    return <></>
   }
 
   return (
@@ -28,5 +28,5 @@ export default function RoomPage() {
       <p>{session?.user?.email}</p>
       <button onClick={() => signOut()}>Sign out</button>
     </div>
-  );
+  )
 }
