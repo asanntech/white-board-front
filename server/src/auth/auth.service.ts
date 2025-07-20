@@ -1,26 +1,31 @@
 import { Injectable } from '@nestjs/common'
-import { CreateAuthDto } from './dto/create-auth.dto'
-import { UpdateAuthDto } from './dto/update-auth.dto'
+import * as jwt from 'jsonwebtoken'
+import * as jwksClient from 'jwks-rsa'
+import { Request } from 'express'
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth'
+  private client = jwksClient({
+    jwksUri: `${process.env.COGNITO_ISSUER}/.well-known/jwks.json`,
+  })
+
+  extractToken(request: Request): string | null {
+    const authHeader = request.headers['authorization']
+    if (!authHeader?.startsWith('Bearer ')) return null
+    return authHeader.replace('Bearer ', '')
   }
 
-  findAll() {
-    return `This action returns all auth`
-  }
+  async verifyToken(token: string): Promise<jwt.JwtPayload | string> {
+    const decoded = jwt.decode(token, { complete: true })
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`
-  }
+    if (!decoded || typeof decoded === 'string' || !decoded.header.kid) {
+      throw new Error('Invalid token format')
+    }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} auth`
+    const key = await this.client.getSigningKey(decoded.header.kid)
+    return jwt.verify(token, key.getPublicKey(), {
+      algorithms: ['RS256'],
+      issuer: process.env.COGNITO_ISSUER,
+    })
   }
 }
