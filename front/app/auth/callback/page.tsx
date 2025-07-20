@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { setCookie } from '@/actions'
+import { setCookieAction } from '@/actions'
 
 type Oauth2Token = {
   access_token: string
@@ -54,8 +54,8 @@ export default function AuthCallbackPage(props: Props) {
         const tokens: Oauth2Token = await res.json()
 
         await Promise.all([
-          setCookie({ key: 'access-token', value: tokens.access_token, maxAge: tokens.expires_in }),
-          setCookie({ key: 'id-token', value: tokens.id_token, maxAge: tokens.expires_in }),
+          setCookieAction({ key: 'access-token', value: tokens.access_token, maxAge: tokens.expires_in }),
+          setCookieAction({ key: 'id-token', value: tokens.id_token, maxAge: tokens.expires_in }),
         ])
 
         router.push('/room/1')
