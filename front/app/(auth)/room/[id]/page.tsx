@@ -22,7 +22,19 @@ export default function RoomPage() {
       >
         Sign Out
       </div>
-      <div>Get Message</div>
+      <div
+        onClick={() => {
+          const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
+          fetch('http://localhost:4000', {
+            method: 'GET',
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          })
+        }}
+      >
+        Get Message
+      </div>
     </div>
   )
 }
