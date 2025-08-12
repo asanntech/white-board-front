@@ -1,6 +1,6 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
+import { useRouter, notFound } from 'next/navigation'
 import { useSearchParams } from 'next/navigation'
 import { useAuthToken } from '@/hooks'
 
@@ -27,6 +27,8 @@ export default function AuthCallbackPage() {
   if (isLoading) return <div>認証中...</div>
 
   if (isError) return <div>認証に失敗しました</div>
+
+  if (!code) notFound()
 
   return null
 }
