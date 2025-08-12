@@ -3,16 +3,47 @@
   "paths": {
     "/": {
       "get": {
-        "operationId": "AppController_getHello",
+        "operationId": "getHello",
         "parameters": [],
         "responses": {
           "200": {
             "description": ""
           }
         },
-        "tags": [
-          "Get Hello"
-        ]
+        "tags": ["Get Hello"]
+      }
+    },
+    "/verify": {
+      "post": {
+        "operationId": "verify",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AuthVerifyRequestDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthVerifyResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": ""
+          }
+        },
+        "summary": "Verify Token",
+        "tags": ["Auth"]
       }
     }
   },
@@ -25,6 +56,39 @@
   "tags": [],
   "servers": [],
   "components": {
-    "schemas": {}
+    "schemas": {
+      "AuthVerifyRequestDto": {
+        "type": "object",
+        "properties": {
+          "idToken": {
+            "type": "string",
+            "description": "IDトークン",
+            "example": "eyJraWQiOiExample...IDToken"
+          }
+        },
+        "required": ["idToken"]
+      },
+      "AuthVerifyResponseDto": {
+        "type": "object",
+        "properties": {
+          "sub": {
+            "type": "string",
+            "description": "ユーザーID",
+            "example": "abc123"
+          },
+          "exp": {
+            "type": "number",
+            "description": "有効期限",
+            "example": 1717987200
+          },
+          "iat": {
+            "type": "number",
+            "description": "作成日時",
+            "example": 1717987200
+          }
+        },
+        "required": ["sub", "exp", "iat"]
+      }
+    }
   }
 }
