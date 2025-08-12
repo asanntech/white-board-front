@@ -24,5 +24,9 @@ pnpm dev
 - /features
   - /auth（ドメインの境界）
     - domain/（ドメイン層）
+      - [...].entity.ts（ビジネスルールや業務制約をカプセル化）
+      - [...].repository.ts（データアクセスの抽象インターフェース）
     - api/（インフラストラクチャ層）
   - use...Query.ts（react-query）
+
+## エラーハンドリング
