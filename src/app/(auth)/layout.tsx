@@ -1,29 +1,55 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useEffect } from 'react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import useLocalStorageState from 'use-local-storage-state'
-import { STORAGE_KEYS } from '@/shared/utils'
+import { useVerifyMutation } from '@/features/auth'
+import { useTokenStore } from '@/hooks'
 
 interface Props {
   children: React.ReactNode
 }
 
-export default function AuthLayout({ children }: Props) {
-  const [isAuth, setIsAuth] = useState(false)
+const queryClient = new QueryClient()
 
+export default function AuthLayout({ children }: Props) {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Contents>{children}</Contents>
+    </QueryClientProvider>
+  )
+}
+
+const Contents = ({ children }: Props) => {
   const router = useRouter()
 
-  const [accessToken] = useLocalStorageState(STORAGE_KEYS.ACCESS_TOKEN, {})
+  const { tokenStore, isLoading: isTokenStoreLoading } = useTokenStore()
+
+  const {
+    mutate: verifyMutate,
+    isError,
+    isPending: isVerifyPending,
+  } = useVerifyMutation({
+    onError: () => {
+      router.replace('/error')
+    },
+  })
 
   useEffect(() => {
-    if (!accessToken) {
+    if (isTokenStoreLoading) return
+
+    // トークンが存在しない場合はリダイレクト
+    if (!tokenStore) {
       router.replace('/')
       return
     }
 
-    setIsAuth(true)
-  }, [router, accessToken])
+    verifyMutate({ idToken: tokenStore.idToken })
+  }, [router, tokenStore, isTokenStoreLoading, verifyMutate])
 
-  return isAuth ? children : <p>Loading...</p>
+  if (isTokenStoreLoading || isVerifyPending) return <p>Loading...</p>
+
+  if (isError) return <p>Error</p>
+
+  return children
 }
