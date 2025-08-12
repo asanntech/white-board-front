@@ -10,10 +10,10 @@
     "generate-api": "openapi --input ./src/open-api/open-api.json --output ./src/open-api/api-client --name ApiClient --useOptions --useUnionTypes"
   },
   "dependencies": {
+    "@tanstack/react-query": "^5.84.2",
     "next": "15.3.5",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-query": "^3.39.3",
     "use-local-storage-state": "^19.5.0"
   },
   "devDependencies": {
