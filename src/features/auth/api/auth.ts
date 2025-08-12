@@ -1,5 +1,5 @@
+import { apiClient } from '@/open-api'
 import { AuthEntity, AuthRepository } from '@/features/auth/domain'
-// import { STORAGE_KEYS } from '@/shared/utils'
 
 export interface AuthApiResult {
   access_token: string
@@ -9,7 +9,7 @@ export interface AuthApiResult {
 }
 
 export class AuthApi implements AuthRepository {
-  public async fetch(code: string) {
+  public async auth(code: string) {
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
       code,
@@ -34,11 +34,8 @@ export class AuthApi implements AuthRepository {
     })
   }
 
-  // public getAccessToken() {
-  //   return localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN) ?? undefined
-  // }
-
-  // public setAccessToken(accessToken: string) {
-  //   localStorage.setItem(STORAGE_KEYS.ACCESS_TOKEN, accessToken)
-  // }
+  public async verify(idToken: string) {
+    const res = await apiClient.auth.verify({ requestBody: { idToken } })
+    return !!res
+  }
 }
