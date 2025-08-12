@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { STORAGE_KEYS } from 'src/app/constants/storageKeys'
+import { useTokenStore } from '@/hooks'
 
 const logoutUrl =
   `${process.env.NEXT_PUBLIC_COGNITO_DOMAIN}/logout` +
@@ -11,29 +11,18 @@ const logoutUrl =
 export default function RoomPage() {
   const router = useRouter()
 
+  const { removeTokenStore } = useTokenStore()
+
   return (
     <div>
       <p>Hello!</p>
       <div
         onClick={() => {
-          localStorage.removeItem(STORAGE_KEYS.ACCESS_TOKEN)
+          removeTokenStore()
           router.replace(logoutUrl)
         }}
       >
         Sign Out
-      </div>
-      <div
-        onClick={() => {
-          const token = localStorage.getItem(STORAGE_KEYS.ACCESS_TOKEN)
-          fetch('http://localhost:4000', {
-            method: 'GET',
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          })
-        }}
-      >
-        Get Message
       </div>
     </div>
   )

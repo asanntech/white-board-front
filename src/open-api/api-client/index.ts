@@ -10,4 +10,8 @@ export { CancelablePromise, CancelError } from './core/CancelablePromise';
 export { OpenAPI } from './core/OpenAPI';
 export type { OpenAPIConfig } from './core/OpenAPI';
 
+export type { AuthVerifyRequestDto } from './models/AuthVerifyRequestDto';
+export type { AuthVerifyResponseDto } from './models/AuthVerifyResponseDto';
+
+export { AuthService } from './services/AuthService';
 export { GetHelloService } from './services/GetHelloService';

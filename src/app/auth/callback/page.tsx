@@ -15,14 +15,18 @@ export default function AuthCallbackPage() {
   const params = useSearchParams()
   const code = params.get('code') || undefined
 
-  const { isLoading } = useAuthToken(
+  const { isLoading, isError } = useAuthToken(
     { code },
     {
       onSuccess: () => {
-        router.push('/room/1')
+        router.replace('/room/1')
       },
     }
   )
 
-  return isLoading ? <div>認証中...</div> : null
+  if (isLoading) return <div>認証中...</div>
+
+  if (isError) return <div>認証に失敗しました</div>
+
+  return null
 }

@@ -5,9 +5,11 @@
 import type { BaseHttpRequest } from './core/BaseHttpRequest';
 import type { OpenAPIConfig } from './core/OpenAPI';
 import { FetchHttpRequest } from './core/FetchHttpRequest';
+import { AuthService } from './services/AuthService';
 import { GetHelloService } from './services/GetHelloService';
 type HttpRequestConstructor = new (config: OpenAPIConfig) => BaseHttpRequest;
 export class ApiClient {
+    public readonly auth: AuthService;
     public readonly getHello: GetHelloService;
     public readonly request: BaseHttpRequest;
     constructor(config?: Partial<OpenAPIConfig>, HttpRequest: HttpRequestConstructor = FetchHttpRequest) {
@@ -22,6 +24,7 @@ export class ApiClient {
             HEADERS: config?.HEADERS,
             ENCODE_PATH: config?.ENCODE_PATH,
         });
+        this.auth = new AuthService(this.request);
         this.getHello = new GetHelloService(this.request);
     }
 }

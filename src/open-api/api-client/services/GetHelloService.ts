@@ -10,7 +10,7 @@ export class GetHelloService {
      * @returns any
      * @throws ApiError
      */
-    public appControllerGetHello(): CancelablePromise<any> {
+    public getHello(): CancelablePromise<any> {
         return this.httpRequest.request({
             method: 'GET',
             url: '/',

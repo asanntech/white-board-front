@@ -1,4 +1,4 @@
-import { useQuery, QueryObserverOptions } from 'react-query'
+import { useQuery, UseQueryOptions } from '@tanstack/react-query'
 import { AuthApi } from './api/auth'
 import { AuthEntity } from './domain'
 
@@ -6,7 +6,7 @@ interface UseAuthQueryParams {
   code?: string
 }
 
-export type UseAuthQueryOptions = QueryObserverOptions<AuthEntity, Error>
+export type UseAuthQueryOptions = UseQueryOptions<AuthEntity, Error>
 
 export const useAuthQuery = (params: UseAuthQueryParams, options?: UseAuthQueryOptions) => {
   const authApi = new AuthApi()
@@ -14,7 +14,7 @@ export const useAuthQuery = (params: UseAuthQueryParams, options?: UseAuthQueryO
   return useQuery<AuthEntity, Error>({
     queryKey: ['auth', params.code],
     enabled: !!params.code,
-    queryFn: () => authApi.fetch(params.code as string),
+    queryFn: () => authApi.auth(params.code as string),
     ...options,
   })
 }
