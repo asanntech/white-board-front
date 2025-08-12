@@ -3,8 +3,10 @@
 import { useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
+import { ErrorBoundary, useErrorBoundary } from 'react-error-boundary'
 import { useVerifyMutation } from '@/features/auth'
 import { useTokenStore } from '@/hooks'
+import { ErrorFallback } from '@/components/error'
 
 interface Props {
   children: React.ReactNode
@@ -15,7 +17,9 @@ const queryClient = new QueryClient()
 export default function AuthLayout({ children }: Props) {
   return (
     <QueryClientProvider client={queryClient}>
-      <Contents>{children}</Contents>
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <Contents>{children}</Contents>
+      </ErrorBoundary>
     </QueryClientProvider>
   )
 }
@@ -23,15 +27,17 @@ export default function AuthLayout({ children }: Props) {
 const Contents = ({ children }: Props) => {
   const router = useRouter()
 
+  const { showBoundary } = useErrorBoundary()
+
   const { tokenStore, isLoading: isTokenStoreLoading } = useTokenStore()
 
   const {
     mutate: verifyMutate,
-    isError,
+    data: isVerifySuccess,
     isPending: isVerifyPending,
   } = useVerifyMutation({
-    onError: () => {
-      router.replace('/error')
+    onError: (err) => {
+      showBoundary({ ...err, status: 401 })
     },
   })
 
@@ -45,11 +51,11 @@ const Contents = ({ children }: Props) => {
     }
 
     verifyMutate({ idToken: tokenStore.idToken })
-  }, [router, tokenStore, isTokenStoreLoading, verifyMutate])
+  }, [isTokenStoreLoading, tokenStore, router, verifyMutate])
 
   if (isTokenStoreLoading || isVerifyPending) return <p>Loading...</p>
 
-  if (isError) return <p>Error</p>
+  if (!isVerifySuccess) return null
 
   return children
 }
