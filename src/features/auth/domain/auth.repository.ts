@@ -6,4 +6,5 @@ export interface AuthRepository {
   verify(idToken: string): Promise<boolean>
   getToken(): Promise<AuthToken>
   deleteToken(): Promise<void>
+  refreshToken(): Promise<AuthToken>
 }
