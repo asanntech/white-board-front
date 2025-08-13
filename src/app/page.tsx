@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useGetTokenQuery } from '@/features/auth'
 
-const loginUrl =
+const signInUrl =
   `${process.env.NEXT_PUBLIC_COGNITO_DOMAIN}/oauth2/authorize` +
   `?client_id=${process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID}` +
   `&response_type=code` +
@@ -38,5 +38,5 @@ const Contents = () => {
 
   if (isTokenLoading || token?.hasToken) return <p>Loading...</p>
 
-  return <a href={loginUrl}>Sign in with Cognito</a>
+  return <a href={signInUrl}>Sign in with Cognito</a>
 }
