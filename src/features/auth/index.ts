@@ -1,2 +1,2 @@
-export * from './useAuthQuery'
+export * from './useTokenQuery'
 export * from './useVerifyMutation'
