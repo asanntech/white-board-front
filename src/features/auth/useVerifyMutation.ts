@@ -1,5 +1,5 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query'
-import { AuthApi } from './api/auth'
+import { AuthApi } from './api'
 
 interface UseAuthQueryParams {
   idToken: string

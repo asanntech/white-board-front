@@ -1,5 +1,6 @@
 import { apiClient } from '@/open-api'
 import { AuthEntity, AuthRepository } from '@/features/auth/domain'
+import { AuthToken } from '@/shared/types'
 
 export interface AuthApiResult {
   access_token: string
@@ -9,6 +10,25 @@ export interface AuthApiResult {
 }
 
 export class AuthApi implements AuthRepository {
+  private static token: AuthToken
+
+  public async getToken() {
+    if (AuthApi.token?.hasToken) return AuthApi.token
+
+    const res = await fetch('/api/token')
+    if (!res.ok) throw new Error('Failed to fetch token')
+
+    const data: AuthToken = await res.json()
+
+    AuthApi.token = data
+    return AuthApi.token
+  }
+
+  public async deleteToken() {
+    AuthApi.token = { hasToken: false }
+    await fetch('/api/token', { method: 'DELETE' })
+  }
+
   public async auth(code: string) {
     const body = new URLSearchParams({
       grant_type: 'authorization_code',

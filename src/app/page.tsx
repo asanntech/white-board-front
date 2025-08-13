@@ -2,7 +2,8 @@
 
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useTokenStore } from '@/hooks/localStorage'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { useGetTokenQuery } from '@/features/auth'
 
 const loginUrl =
   `${process.env.NEXT_PUBLIC_COGNITO_DOMAIN}/oauth2/authorize` +
@@ -12,18 +13,30 @@ const loginUrl =
   `&redirect_uri=${process.env.NEXT_PUBLIC_COGNITO_REDIRECT_URI}` +
   `&lang=ja`
 
+const queryClient = new QueryClient()
+
 export default function Home() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Contents />
+    </QueryClientProvider>
+  )
+}
+
+const Contents = () => {
   const router = useRouter()
 
-  const { tokenStore, isLoading } = useTokenStore()
+  const { data: token, isLoading: isTokenLoading } = useGetTokenQuery()
 
   useEffect(() => {
-    if (tokenStore) {
+    if (isTokenLoading) return
+
+    if (token?.hasToken) {
       router.replace('/room/1')
     }
-  }, [tokenStore, router])
+  }, [router, token?.hasToken, isTokenLoading])
 
-  if (isLoading || tokenStore) return <div>Loading...</div>
+  if (isTokenLoading || token?.hasToken) return <p>Loading...</p>
 
   return <a href={loginUrl}>Sign in with Cognito</a>
 }
