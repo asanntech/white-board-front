@@ -4,8 +4,7 @@ import { useEffect } from 'react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
 import { ErrorBoundary, useErrorBoundary } from 'react-error-boundary'
-import { useVerifyMutation } from '@/features/auth'
-import { useTokenStore } from '@/hooks'
+import { useGetTokenQuery, useVerifyMutation } from '@/features/auth'
 import { ErrorFallback } from '@/components/error'
 
 interface Props {
@@ -29,7 +28,7 @@ const Contents = ({ children }: Props) => {
 
   const { showBoundary } = useErrorBoundary()
 
-  const { tokenStore, isLoading: isTokenStoreLoading } = useTokenStore()
+  const { data: token, isLoading: isTokenLoading } = useGetTokenQuery()
 
   const {
     mutate: verifyMutate,
@@ -42,18 +41,18 @@ const Contents = ({ children }: Props) => {
   })
 
   useEffect(() => {
-    if (isTokenStoreLoading) return
+    if (isTokenLoading) return
 
     // トークンが存在しない場合はリダイレクト
-    if (!tokenStore) {
+    if (!token?.hasToken) {
       router.replace('/')
       return
     }
 
-    verifyMutate({ idToken: tokenStore.idToken })
-  }, [isTokenStoreLoading, tokenStore, router, verifyMutate])
+    verifyMutate({ idToken: token.idToken })
+  }, [isTokenLoading, router, token, verifyMutate])
 
-  if (isTokenStoreLoading || isVerifyPending) return <p>Loading...</p>
+  if (isVerifyPending) return <p>Loading...</p>
 
   if (!isVerifySuccess) return null
 
