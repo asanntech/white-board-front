@@ -2,9 +2,9 @@ import { useQuery, UseQueryOptions } from '@tanstack/react-query'
 import { AuthApi } from './api'
 import { AuthToken } from '@/shared/types'
 
-export type UseTokenQueryOptions = UseQueryOptions<AuthToken, Error>
+type UseGetTokenQueryOptions = UseQueryOptions<AuthToken, Error>
 
-export const useTokenQuery = (options?: UseTokenQueryOptions) => {
+export const useGetTokenQuery = (options?: UseGetTokenQueryOptions) => {
   const authApi = new AuthApi()
 
   return useQuery<AuthToken, Error>({
