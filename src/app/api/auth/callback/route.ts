@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers'
 import { addSeconds } from 'date-fns'
 import { AuthApi } from '@/features/auth/api'
-import { cookieOptions } from '@/shared/utils'
+import { cookieOptions, TOKEN_COOKIE_KEYS } from '@/shared/utils'
 
 /**
  * Cognitoのコールバックエンドポイント
@@ -18,12 +18,12 @@ export async function GET(request: Request) {
 
   const cookieStore = await cookies()
 
-  cookieStore.set('access_token', res.accessToken, cookieOptions)
-  cookieStore.set('id_token', res.idToken, cookieOptions)
-  cookieStore.set('refresh_token', res.refreshToken, cookieOptions)
+  cookieStore.set(TOKEN_COOKIE_KEYS.ACCESS_TOKEN, res.accessToken, cookieOptions)
+  cookieStore.set(TOKEN_COOKIE_KEYS.ID_TOKEN, res.idToken, cookieOptions)
+  cookieStore.set(TOKEN_COOKIE_KEYS.REFRESH_TOKEN, res.refreshToken, cookieOptions)
 
   const expired = addSeconds(new Date(), res.expiresIn).getTime().toString()
-  cookieStore.set('expired', expired, cookieOptions)
+  cookieStore.set(TOKEN_COOKIE_KEYS.EXPIRED, expired, cookieOptions)
 
   return Response.redirect('http://localhost:3000/room/1', 301)
 }
