@@ -1,7 +1,7 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { useTokenStore } from '@/hooks'
+import { useDeleteTokenMutation } from '@/features/auth'
 
 const logoutUrl =
   `${process.env.NEXT_PUBLIC_COGNITO_DOMAIN}/logout` +
@@ -11,19 +11,16 @@ const logoutUrl =
 export default function RoomPage() {
   const router = useRouter()
 
-  const { removeTokenStore } = useTokenStore()
+  const { mutate: deleteTokenMutate } = useDeleteTokenMutation({
+    onSuccess: () => {
+      router.replace(logoutUrl)
+    },
+  })
 
   return (
     <div>
       <p>Hello!</p>
-      <div
-        onClick={() => {
-          removeTokenStore()
-          router.replace(logoutUrl)
-        }}
-      >
-        Sign Out
-      </div>
+      <div onClick={() => deleteTokenMutate()}>Sign Out</div>
     </div>
   )
 }
