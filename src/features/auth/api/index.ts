@@ -24,6 +24,11 @@ export class AuthApi implements AuthRepository {
     return AuthApi.token
   }
 
+  public async deleteToken() {
+    AuthApi.token = { hasToken: false }
+    await fetch('/api/token', { method: 'DELETE' })
+  }
+
   public async auth(code: string) {
     const body = new URLSearchParams({
       grant_type: 'authorization_code',
