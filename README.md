@@ -10,21 +10,21 @@ pnpm dev
 
 ##### プレゼンテーション層
 
-- app/
-- components/
+- app /
+- components /
 
 ##### アプリケーション層
 
-- hooks/
+- hooks /
 
 ##### ドメイン・インフラストラクチャ層
 
-- features/
-  - auth/（ドメインの境界）
+- features /
+  - auth /（ドメインの境界）
     - domain/（ドメイン層）
       - [...].entity.ts（ビジネスルールや業務制約をカプセル化）
       - [...].repository.ts（データアクセスの抽象インターフェース）
-    - api/（インフラストラクチャ層）
+    - api /（インフラストラクチャ層）
   - use...Query.ts（react-query）
 
 ## エラーハンドリング
@@ -42,9 +42,9 @@ Cognito を使用して、トークンの管理方法は JWT 認証を採用。<
 sequenceDiagram
     participant U as ユーザー
     participant F as フロントエンド
-    participant B as Next.js（サーバー）
+    participant B as Next.js
     participant C as Cognito
-    participant DB as Nest.js（バックエンド）
+    participant DB as Nest.js
 
     Note over U,DB: 1. 認証フロー
     U->>F: ログイン要求
@@ -67,10 +67,10 @@ sequenceDiagram
     B->>F: トークン情報返却
 
     Note over U,DB: 3. API呼び出し
-    F->>B: API要求 (IDトークン付き)
-    B->>DB: トークン検証
-    DB->>B: 検証結果
-    B->>F: API応答
+    F->>DB: API要求 (IDトークン付き)
+    DB->>C: トークン検証
+    C->>DB: 検証結果
+    DB->>F: API応答
 
     Note over U,DB: 4. ログアウト
     U->>F: ログアウト要求
