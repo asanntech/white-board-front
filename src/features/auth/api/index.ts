@@ -1,4 +1,4 @@
-import { apiClient } from '@/open-api'
+import { apiClient } from '@/lib/open-api'
 import { AuthEntity, AuthRepository } from '@/features/auth/domain'
 import { AuthApiResult, AuthToken } from '@/shared/types'
 
