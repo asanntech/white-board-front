@@ -1,18 +1,6 @@
 {
   "openapi": "3.0.0",
   "paths": {
-    "/": {
-      "get": {
-        "operationId": "getHello",
-        "parameters": [],
-        "responses": {
-          "200": {
-            "description": ""
-          }
-        },
-        "tags": ["Get Hello"]
-      }
-    },
     "/verify": {
       "post": {
         "operationId": "verify",
@@ -39,7 +27,7 @@
             }
           },
           "401": {
-            "description": ""
+            "description": "Unauthorized"
           }
         },
         "summary": "Verify Token",
@@ -76,6 +64,21 @@
             "description": "ユーザーID",
             "example": "abc123"
           },
+          "lastName": {
+            "type": "string",
+            "description": "姓",
+            "example": "山田"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "名",
+            "example": "太郎"
+          },
+          "email": {
+            "type": "string",
+            "description": "メールアドレス",
+            "example": "yamada.taro@example.com"
+          },
           "exp": {
             "type": "number",
             "description": "有効期限",
@@ -87,7 +90,7 @@
             "example": 1717987200
           }
         },
-        "required": ["sub", "exp", "iat"]
+        "required": ["sub", "lastName", "firstName", "email", "exp", "iat"]
       }
     }
   }

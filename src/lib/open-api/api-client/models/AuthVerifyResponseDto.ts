@@ -8,6 +8,18 @@ export type AuthVerifyResponseDto = {
      */
     sub: string;
     /**
+     * 姓
+     */
+    lastName: string;
+    /**
+     * 名
+     */
+    firstName: string;
+    /**
+     * メールアドレス
+     */
+    email: string;
+    /**
      * 有効期限
      */
     exp: number;

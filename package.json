@@ -7,12 +7,13 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "generate-api": "openapi --input ./src/open-api/open-api.json --output ./src/open-api/api-client --name ApiClient --useOptions --useUnionTypes"
+    "generate-api": "openapi --input ./src/lib/open-api/open-api.json --output ./src/lib/open-api/api-client --name ApiClient --useOptions --useUnionTypes"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.84.2",
     "date-fns": "^4.1.0",
     "next": "15.3.5",
+    "pixi.js": "^8.12.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-error-boundary": "^6.0.0"

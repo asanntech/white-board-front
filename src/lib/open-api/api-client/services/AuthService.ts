@@ -23,6 +23,9 @@ export class AuthService {
             url: '/verify',
             body: requestBody,
             mediaType: 'application/json',
+            errors: {
+                401: `Unauthorized`,
+            },
         });
     }
 }
