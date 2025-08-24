@@ -7,10 +7,15 @@ import { cookieOptions, TOKEN_COOKIE_KEYS } from '@/shared/utils'
 export async function GET() {
   const cookieStore = await cookies()
 
+  // トークンの有効期限が切れていたら更新する
+  const expired = cookieStore.get(TOKEN_COOKIE_KEYS.EXPIRED)?.value
+  if (expired && Number(expired) < Date.now()) {
+    return await POST()
+  }
+
   const accessToken = cookieStore.get(TOKEN_COOKIE_KEYS.ACCESS_TOKEN)?.value
   const idToken = cookieStore.get(TOKEN_COOKIE_KEYS.ID_TOKEN)?.value
   const refreshToken = cookieStore.get(TOKEN_COOKIE_KEYS.REFRESH_TOKEN)?.value
-  const expired = cookieStore.get(TOKEN_COOKIE_KEYS.EXPIRED)?.value
 
   const token: AuthToken = accessToken
     ? {
