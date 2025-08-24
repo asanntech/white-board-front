@@ -7,14 +7,8 @@ export class AuthApi implements AuthRepository {
 
   // トークンを取得する
   public async getToken() {
-    // 既にトークンが存在する場合
-    if (AuthApi.token?.hasToken) {
-      // トークンの有効期限が切れていたら更新する
-      const timestamp = Date.now()
-      if (AuthApi.token.expired < timestamp) {
-        AuthApi.token = await this.refreshToken()
-      }
-
+    // 既にトークンが存在する場合 かつ 有効期限が切れていない場合
+    if (AuthApi.token?.hasToken && AuthApi.token.expired > Date.now()) {
       return AuthApi.token
     }
 
@@ -31,19 +25,6 @@ export class AuthApi implements AuthRepository {
   public async deleteToken() {
     AuthApi.token = { hasToken: false }
     await fetch('/api/token', { method: 'DELETE' })
-  }
-
-  // トークンを更新する
-  public async refreshToken() {
-    if (!AuthApi.token.hasToken) throw new Error('No token found')
-
-    const res = await fetch('/api/token', { method: 'POST' })
-    if (!res.ok) throw new Error('Failed to Refresh Token')
-
-    const data: AuthToken = await res.json()
-
-    AuthApi.token = data
-    return AuthApi.token
   }
 
   // 認証コードを受け取ってトークンを取得する
