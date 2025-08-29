@@ -1,9 +1,14 @@
 'use client'
 
 import { useEffect } from 'react'
+import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useGetTokenQuery } from '@/features/auth'
+
+const WhiteBoard = dynamic(() => import('@/lib/konva').then((mod) => mod.WhiteBoard), {
+  ssr: false,
+})
 
 const signInUrl =
   `${process.env.NEXT_PUBLIC_COGNITO_DOMAIN}/oauth2/authorize` +
@@ -44,5 +49,10 @@ const Contents = () => {
 
   if (isTokenLoading || token?.hasToken) return <p>Loading...</p>
 
-  return <a href={signInUrl}>Sign in with Cognito</a>
+  return (
+    <div>
+      <a href={signInUrl}>Sign in with Cognito</a>
+      <WhiteBoard />
+    </div>
+  )
 }

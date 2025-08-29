@@ -12,11 +12,13 @@
   "dependencies": {
     "@tanstack/react-query": "^5.84.2",
     "date-fns": "^4.1.0",
+    "konva": "^9.3.22",
     "next": "15.3.5",
-    "pixi.js": "^8.12.0",
+    "polotno": "^2.25.16",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
-    "react-error-boundary": "^6.0.0"
+    "react-error-boundary": "^6.0.0",
+    "react-konva": "^19.0.7"
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
@@ -31,5 +33,12 @@
     "openapi-typescript-codegen": "^0.29.0",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.8.3"
+  },
+  "pnpm": {
+    "overrides": {
+      "polotno>react": "^19.0.0",
+      "polotno>react-dom": "^19.0.0",
+      "polotno>react-konva": "^19.0.7"
+    }
   }
 }
