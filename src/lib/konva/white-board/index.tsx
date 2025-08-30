@@ -1,83 +1,43 @@
-import React from 'react'
+import { Stage, Layer, Circle } from 'react-konva'
+import { useRef, useEffect } from 'react'
 import Konva from 'konva'
-import { Stage, Layer, Line } from 'react-konva'
+import { useScaleAtPointer, useViewportSize } from '../hooks'
+import { COLORS } from '@/shared/constants'
 
 export const WhiteBoard = () => {
-  const [tool, setTool] = React.useState('brush')
-  const [lines, setLines] = React.useState<{ tool: string; points: number[] }[]>([])
-  const isDrawing = React.useRef(false)
+  const { width, height } = useViewportSize()
 
-  const handleMouseDown = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    isDrawing.current = true
-    const pos = e.target.getStage()?.getPointerPosition()
-    if (pos) {
-      setLines([...lines, { tool, points: [pos.x, pos.y] }])
-    }
-  }
+  const stageRef = useRef<Konva.Stage>(null)
+  const { scale, scaleAtPointer } = useScaleAtPointer(stageRef)
 
-  const handleMouseMove = (e: Konva.KonvaEventObject<MouseEvent>) => {
-    // no drawing - skipping
-    if (!isDrawing.current) {
-      return
-    }
-    const stage = e.target.getStage()
-    const point = stage?.getPointerPosition()
-    if (!point) {
-      return
-    }
+  // 背景を方眼紙風に描画する
+  useEffect(() => {
+    if (!stageRef.current) return
 
-    // To draw line
-    let lastLine = lines[lines.length - 1]
-    // add point
-    if (lastLine) {
-      lastLine.points = lastLine.points.concat([point.x, point.y])
-    }
+    const gridSize = 80 * scale
+    const boldSize = gridSize * 5
 
-    // replace last
-    lines.splice(lines.length - 1, 1, lastLine)
-    setLines(lines.concat())
-  }
-
-  const handleMouseUp = () => {
-    isDrawing.current = false
-  }
+    const container = stageRef.current.container()
+    container.style.backgroundColor = COLORS.WHITEBOARD.BACKGROUND
+    container.style.backgroundImage = `
+      linear-gradient(to right, ${COLORS.WHITEBOARD.GRID_LINE} 1px, ${COLORS.COMMON.TRANSPARENT} 1px),
+      linear-gradient(to bottom, ${COLORS.WHITEBOARD.GRID_LINE} 1px, ${COLORS.COMMON.TRANSPARENT} 1px),
+      linear-gradient(to right, ${COLORS.WHITEBOARD.GRID_LINE_BOLD} 1px, ${COLORS.COMMON.TRANSPARENT} 1px),
+      linear-gradient(to bottom, ${COLORS.WHITEBOARD.GRID_LINE_BOLD} 1px, ${COLORS.COMMON.TRANSPARENT} 1px)
+    `
+    container.style.backgroundSize = `
+      ${gridSize}px ${gridSize}px,
+      ${gridSize}px ${gridSize}px,
+      ${boldSize}px ${boldSize}px,
+      ${boldSize}px ${boldSize}px
+    `
+  }, [scale])
 
   return (
-    <>
-      <select
-        value={tool}
-        onChange={(e) => {
-          setTool(e.target.value)
-        }}
-      >
-        <option value="brush">Brush</option>
-        <option value="eraser">Eraser</option>
-      </select>
-      <Stage
-        width={window.innerWidth}
-        height={window.innerHeight - 25}
-        onMouseDown={handleMouseDown}
-        onMousemove={handleMouseMove}
-        onMouseup={handleMouseUp}
-        // onTouchStart={handleMouseDown}
-        // onTouchMove={handleMouseMove}
-        // onTouchEnd={handleMouseUp}
-      >
-        <Layer>
-          {lines.map((line, i) => (
-            <Line
-              key={i}
-              points={line.points}
-              stroke="#df4b26"
-              strokeWidth={5}
-              tension={0.5}
-              lineCap="round"
-              lineJoin="round"
-              globalCompositeOperation={line.tool === 'eraser' ? 'destination-out' : 'source-over'}
-            />
-          ))}
-        </Layer>
-      </Stage>
-    </>
+    <Stage ref={stageRef} width={width} height={height} draggable onWheel={scaleAtPointer}>
+      <Layer>
+        <Circle x={width / 2} y={height / 2} radius={50} fill="green" />
+      </Layer>
+    </Stage>
   )
 }
