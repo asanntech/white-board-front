@@ -1,8 +1,9 @@
-import { Stage, Layer, Circle } from 'react-konva'
+import { Stage } from 'react-konva'
 import { useRef, useEffect } from 'react'
 import Konva from 'konva'
-import { useScaleAtPointer, useViewportSize } from '../hooks'
-import { COLORS } from '@/shared/constants'
+import { useScaleAtPointer, useViewportSize, useKeyboardState } from '../hooks'
+import { GraphPaperLayer } from '../components'
+import { canvasSize } from '../constants'
 
 export const WhiteBoard = () => {
   const { width, height } = useViewportSize()
@@ -10,34 +11,43 @@ export const WhiteBoard = () => {
   const stageRef = useRef<Konva.Stage>(null)
   const { scale, scaleAtPointer } = useScaleAtPointer(stageRef)
 
-  // 背景を方眼紙風に描画する
+  // スペースキーの押下状態を管理
+  const isSpacePressed = useKeyboardState('Space')
+
+  // スペースキー押下中にカーソルを変更
   useEffect(() => {
-    if (!stageRef.current) return
+    const stage = stageRef.current
+    if (!stage) return
 
-    const gridSize = 80 * scale
-    const boldSize = gridSize * 5
+    const container = stage.container()
+    container.style.cursor = isSpacePressed ? 'grab' : 'default'
+  }, [isSpacePressed])
 
-    const container = stageRef.current.container()
-    container.style.backgroundColor = COLORS.WHITEBOARD.BACKGROUND
-    container.style.backgroundImage = `
-      linear-gradient(to right, ${COLORS.WHITEBOARD.GRID_LINE} 1px, ${COLORS.COMMON.TRANSPARENT} 1px),
-      linear-gradient(to bottom, ${COLORS.WHITEBOARD.GRID_LINE} 1px, ${COLORS.COMMON.TRANSPARENT} 1px),
-      linear-gradient(to right, ${COLORS.WHITEBOARD.GRID_LINE_BOLD} 1px, ${COLORS.COMMON.TRANSPARENT} 1px),
-      linear-gradient(to bottom, ${COLORS.WHITEBOARD.GRID_LINE_BOLD} 1px, ${COLORS.COMMON.TRANSPARENT} 1px)
-    `
-    container.style.backgroundSize = `
-      ${gridSize}px ${gridSize}px,
-      ${gridSize}px ${gridSize}px,
-      ${boldSize}px ${boldSize}px,
-      ${boldSize}px ${boldSize}px
-    `
-  }, [scale])
+  // 初期状態でカメラを中央に配置
+  useEffect(() => {
+    const stage = stageRef.current
+    if (!stage) return
+
+    // x=y想定のズーム倍率
+    const s = scale
+    const centerX = canvasSize / 2
+    const centerY = canvasSize / 2
+
+    const viewportCenterX = width / 2
+    const viewportCenterY = height / 2
+
+    // 世界座標 (centerX, centerY) をビューポート中心 (viewportCenterX, viewportCenterY) に合わせる
+    stage.position({
+      x: viewportCenterX - centerX * s,
+      y: viewportCenterY - centerY * s,
+    })
+
+    stage.batchDraw()
+  }, [width, height, scale])
 
   return (
-    <Stage ref={stageRef} width={width} height={height} draggable onWheel={scaleAtPointer}>
-      <Layer>
-        <Circle x={width / 2} y={height / 2} radius={50} fill="green" />
-      </Layer>
+    <Stage ref={stageRef} width={width} height={height} draggable={isSpacePressed} onWheel={scaleAtPointer}>
+      <GraphPaperLayer scale={scale} />
     </Stage>
   )
 }

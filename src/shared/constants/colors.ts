@@ -8,7 +8,7 @@ export const COLORS = {
   WHITEBOARD: {
     BACKGROUND: '#F2F2F2',
     GRID_LINE: '#E9E9E9',
-    GRID_LINE_BOLD: '#CFCFCF',
+    GRID_LINE_BOLD: '#DFDFDF',
   },
 } as const
 
