@@ -1,7 +1,7 @@
 import { Stage } from 'react-konva'
 import { useRef, useEffect } from 'react'
 import Konva from 'konva'
-import { useScaleAtPointer, useViewportSize } from '../hooks'
+import { useScaleAtPointer, useViewportSize, useKeyboardState } from '../hooks'
 import { GraphPaperLayer } from '../components'
 import { canvasSize } from '../constants'
 
@@ -10,6 +10,18 @@ export const WhiteBoard = () => {
 
   const stageRef = useRef<Konva.Stage>(null)
   const { scale, scaleAtPointer } = useScaleAtPointer(stageRef)
+
+  // スペースキーの押下状態を管理
+  const isSpacePressed = useKeyboardState('Space')
+
+  // スペースキー押下中にカーソルを変更
+  useEffect(() => {
+    const stage = stageRef.current
+    if (!stage) return
+
+    const container = stage.container()
+    container.style.cursor = isSpacePressed ? 'grab' : 'default'
+  }, [isSpacePressed])
 
   // 初期状態でカメラを中央に配置
   useEffect(() => {
@@ -34,7 +46,7 @@ export const WhiteBoard = () => {
   }, [width, height, scale])
 
   return (
-    <Stage ref={stageRef} width={width} height={height} draggable onWheel={scaleAtPointer}>
+    <Stage ref={stageRef} width={width} height={height} draggable={isSpacePressed} onWheel={scaleAtPointer}>
       <GraphPaperLayer scale={scale} />
     </Stage>
   )
