@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useGetTokenQuery } from '@/features/auth'
+import { Toolbar } from '@/components/toolbar'
 
 const WhiteBoard = dynamic(() => import('@/lib/konva').then((mod) => mod.WhiteBoard), {
   ssr: false,
@@ -50,8 +51,11 @@ const Contents = () => {
   if (isTokenLoading || token?.hasToken) return <p>Loading...</p>
 
   return (
-    <div>
+    <div className="relative">
       {/* <a href={signInUrl}>Sign in with Cognito</a> */}
+      <div className="fixed z-10 top-1/2 left-5 -translate-y-1/2">
+        <Toolbar />
+      </div>
       <WhiteBoard />
     </div>
   )
