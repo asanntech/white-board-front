@@ -1,16 +1,13 @@
 import { useCallback, useEffect, useRef } from 'react'
 import Konva from 'konva'
 import { useScaleAtPointer } from './useScaleAtPointer'
+import { useViewportSize } from './useViewportSize'
 import { canvasSize } from '../constants'
 
-interface UseStageControlOptions {
-  width: number
-  height: number
-}
-
-export const useStageControl = ({ width, height }: UseStageControlOptions) => {
+export const useStageControl = () => {
   const stageRef = useRef<Konva.Stage>(null)
 
+  const { width, height } = useViewportSize()
   const { scale, scaleAtPointer } = useScaleAtPointer(stageRef)
 
   // ドラッグ範囲をcanvas領域に制限する
@@ -33,7 +30,7 @@ export const useStageControl = ({ width, height }: UseStageControlOptions) => {
     [width, height, scale]
   )
 
-  // 初期状態でカメラを中央に配置
+  // 初期状態でカメラを中央に配置（初回のみ）
   useEffect(() => {
     const stage = stageRef.current
     if (!stage) return
@@ -46,15 +43,17 @@ export const useStageControl = ({ width, height }: UseStageControlOptions) => {
 
     // 世界座標 (centerX, centerY) をビューポート中心 (viewportCenterX, viewportCenterY) に合わせる
     stage.position({
-      x: viewportCenterX - centerX * scale,
-      y: viewportCenterY - centerY * scale,
+      x: viewportCenterX - centerX,
+      y: viewportCenterY - centerY,
     })
 
     stage.batchDraw()
-  }, [width, height, scale])
+  }, [width, height])
 
   return {
     stageRef,
+    width,
+    height,
     scale,
     scaleAtPointer,
     restrictDragWithinCanvas,
