@@ -1,11 +1,15 @@
 import { useCallback, useEffect, useRef } from 'react'
+import { useAtomValue } from 'jotai'
 import Konva from 'konva'
 import { useScaleAtPointer } from './useScaleAtPointer'
 import { useViewportSize } from './useViewportSize'
+import { spaceKeyPressAtom } from '../atoms'
 import { canvasSize } from '../constants'
 
 export const useStageControl = () => {
   const stageRef = useRef<Konva.Stage>(null)
+
+  const isSpacePressed = useAtomValue(spaceKeyPressAtom)
 
   const { width, height } = useViewportSize()
   const { scale, scaleAtPointer } = useScaleAtPointer(stageRef)
@@ -50,6 +54,15 @@ export const useStageControl = () => {
     stage.batchDraw()
   }, [width, height])
 
+  // スペースキー押下中にカーソルを変更
+  useEffect(() => {
+    const stage = stageRef.current
+    if (!stage) return
+
+    const container = stage.container()
+    container.style.cursor = isSpacePressed ? 'grab' : 'default'
+  }, [isSpacePressed])
+
   return {
     stageRef,
     width,
@@ -57,5 +70,6 @@ export const useStageControl = () => {
     scale,
     scaleAtPointer,
     restrictDragWithinCanvas,
+    isSpacePressed,
   }
 }

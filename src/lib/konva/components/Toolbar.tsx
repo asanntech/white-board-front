@@ -1,4 +1,4 @@
-import { SelectIcon, PenToolIcon, TextIcon, ShapeIcon, UndoIcon, RedoIcon } from '../icons'
+import { SelectIcon, PenToolIcon, TextIcon, ShapeIcon, UndoIcon, RedoIcon } from '../../../components/icons'
 
 export const Toolbar = () => {
   const tools = [

@@ -1,1 +1,1 @@
-export * from './white-board'
+export * from './WhiteBoard'
