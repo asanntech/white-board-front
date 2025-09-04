@@ -12,6 +12,8 @@
   "dependencies": {
     "@tanstack/react-query": "^5.84.2",
     "date-fns": "^4.1.0",
+    "immer": "^10.1.3",
+    "jotai": "^2.13.1",
     "konva": "^9.3.22",
     "next": "15.3.5",
     "react": "^19.0.0",
