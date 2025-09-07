@@ -1,4 +1,4 @@
-export type Tool = 'select' | 'text' | 'shape' | 'pen' | 'marker' | 'eraser'
+export type Tool = 'select' | 'pen' | 'marker' | 'eraser'
 
 export type Drawing = Extract<Tool, 'pen' | 'marker' | 'eraser'>
 
