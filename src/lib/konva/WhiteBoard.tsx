@@ -3,6 +3,7 @@ import { useAtomValue } from 'jotai'
 import { toolAtom } from './atoms'
 import { useStageControl, useDrawing, useKeyboardListeners } from './hooks'
 import { Toolbar, GraphPaperLayer, Eraser } from './components'
+import { lineConfig } from './constants'
 
 export const WhiteBoard = () => {
   return (
@@ -18,8 +19,7 @@ export const WhiteBoard = () => {
 
 const DrawingArea = () => {
   const { stageRef, width, height, scale, scaleAtPointer, restrictDragWithinCanvas, isSpacePressed } = useStageControl()
-  const { lineObjects, isDrawing, handlePointerDown, handlePointerMove, handlePointerUp, getDrawingConfig } =
-    useDrawing()
+  const { lineObjects, isDrawing, handlePointerDown, handlePointerMove, handlePointerUp } = useDrawing()
 
   const tool = useAtomValue(toolAtom)
   const showEraser = tool === 'eraser' && isDrawing
@@ -41,7 +41,7 @@ const DrawingArea = () => {
       <GraphPaperLayer scale={scale} />
       <Layer>
         {lineObjects.map((object) => {
-          const config = getDrawingConfig(object)
+          const config = lineConfig[object.type]
           return <Line key={object.id} name={object.type} points={object.points} {...config} />
         })}
         {showEraser && <Eraser stageRef={stageRef} />}

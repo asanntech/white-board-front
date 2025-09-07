@@ -10,7 +10,7 @@ export const useDrawing = () => {
   const tool = useAtomValue(toolAtom)
 
   const drawingType = useMemo(() => {
-    return tool === 'pen' || tool === 'marker' || tool === 'eraser' ? tool : undefined
+    return tool === 'pen' || tool === 'redPen' || tool === 'marker' || tool === 'eraser' ? tool : undefined
   }, [tool])
 
   const createDrawingObject = useCallback(
@@ -86,55 +86,11 @@ export const useDrawing = () => {
     setIsDrawing(false)
   }, [])
 
-  // ツール別の描画設定
-  const getDrawingConfig = useCallback((object: DrawingObject) => {
-    switch (object.type) {
-      case 'pen':
-        return {
-          stroke: '#000000',
-          strokeWidth: 2,
-          tension: 0,
-          lineCap: 'round' as const,
-          lineJoin: 'round' as const,
-          globalCompositeOperation: 'source-over' as const,
-        }
-      case 'marker':
-        return {
-          stroke: '#df4b26',
-          strokeWidth: 20,
-          tension: 0.5,
-          lineCap: 'round' as const,
-          lineJoin: 'round' as const,
-          globalCompositeOperation: 'source-over' as const,
-          opacity: 0.5,
-        }
-      case 'eraser':
-        return {
-          stroke: '#000000',
-          strokeWidth: 50,
-          tension: 0.5,
-          lineCap: 'round' as const,
-          lineJoin: 'round' as const,
-          globalCompositeOperation: 'destination-out' as const,
-        }
-      default:
-        return {
-          stroke: '#df4b26',
-          strokeWidth: 5,
-          tension: 0.5,
-          lineCap: 'round' as const,
-          lineJoin: 'round' as const,
-          globalCompositeOperation: 'source-over' as const,
-        }
-    }
-  }, [])
-
   return {
     lineObjects,
     isDrawing,
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,
-    getDrawingConfig,
   }
 }
