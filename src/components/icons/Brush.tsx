@@ -1,6 +1,6 @@
 export const BrushIcon = () => (
   <svg
-    className="h-6 w-6 text-gray-500"
+    className="h-6 w-6 text-green-400"
     width="24"
     height="24"
     viewBox="0 0 24 24"
