@@ -1,33 +1,44 @@
-import { useState, useRef, useCallback } from 'react'
-import { useAtom, useAtomValue } from 'jotai'
+import { useState, useMemo, useCallback } from 'react'
+import { useAtomValue } from 'jotai'
 import { KonvaEventObject } from 'konva/lib/Node'
 import { produce } from 'immer'
 import { useCanvasCoordinates } from './useCanvasCoordinates'
 import { toolAtom, spaceKeyPressAtom } from '../atoms'
-import { Drawing, DrawingObject } from '../types'
+import { DrawingObject } from '../types'
 
 export const useDrawing = () => {
-  const [tool] = useAtom(toolAtom)
+  const tool = useAtomValue(toolAtom)
+
+  const drawingType = useMemo(() => {
+    return tool === 'pen' || tool === 'marker' || tool === 'eraser' ? tool : undefined
+  }, [tool])
+
+  const createDrawingObject = useCallback(
+    (points: number[]) => {
+      if (!drawingType) {
+        throw new Error('Tool must be pen, marker, or eraser')
+      }
+
+      return {
+        id: `${drawingType}-${Date.now()}-${Math.random()}`,
+        type: drawingType,
+        points,
+      }
+    },
+    [drawingType]
+  )
+
+  const [isDrawing, setIsDrawing] = useState(false)
+
   const isSpacePressed = useAtomValue(spaceKeyPressAtom)
 
   const [lineObjects, setLineObjects] = useState<DrawingObject[]>([])
 
-  const isDrawing = useRef(false)
-
   const { getPointerPosition } = useCanvasCoordinates()
-
-  // 各ツールの描画ロジック
-  const createDrawingObject = useCallback((tool: Drawing, points: number[]): DrawingObject => {
-    return {
-      id: `${tool}-${Date.now()}-${Math.random()}`,
-      type: tool,
-      points,
-    }
-  }, [])
 
   const handlePointerDown = useCallback(
     (e: KonvaEventObject<PointerEvent>) => {
-      if (isSpacePressed) return
+      if (isSpacePressed || !drawingType) return
 
       const stage = e.target.getStage()
       if (!stage) return
@@ -35,10 +46,10 @@ export const useDrawing = () => {
       const canvasPos = getPointerPosition(stage)
       if (!canvasPos) return
 
-      isDrawing.current = true
+      setIsDrawing(true)
 
       // ツールに応じた描画オブジェクトを作成
-      const newObject = createDrawingObject(tool, [canvasPos.x, canvasPos.y])
+      const newObject = createDrawingObject([canvasPos.x, canvasPos.y])
 
       setLineObjects(
         produce((draft) => {
@@ -46,12 +57,12 @@ export const useDrawing = () => {
         })
       )
     },
-    [tool, isSpacePressed, getPointerPosition, createDrawingObject]
+    [isSpacePressed, drawingType, getPointerPosition, createDrawingObject]
   )
 
   const handlePointerMove = useCallback(
     (e: KonvaEventObject<PointerEvent>) => {
-      if (!isDrawing.current) return
+      if (!isDrawing) return
 
       const stage = e.target.getStage()
       if (!stage) return
@@ -68,11 +79,11 @@ export const useDrawing = () => {
         })
       )
     },
-    [getPointerPosition]
+    [getPointerPosition, isDrawing]
   )
 
   const handlePointerUp = useCallback(() => {
-    isDrawing.current = false
+    setIsDrawing(false)
   }, [])
 
   // ツール別の描画設定
@@ -87,19 +98,20 @@ export const useDrawing = () => {
           lineJoin: 'round' as const,
           globalCompositeOperation: 'source-over' as const,
         }
-      case 'brush':
+      case 'marker':
         return {
           stroke: '#df4b26',
-          strokeWidth: 5,
+          strokeWidth: 20,
           tension: 0.5,
           lineCap: 'round' as const,
           lineJoin: 'round' as const,
           globalCompositeOperation: 'source-over' as const,
+          opacity: 0.5,
         }
       case 'eraser':
         return {
           stroke: '#000000',
-          strokeWidth: 10,
+          strokeWidth: 50,
           tension: 0.5,
           lineCap: 'round' as const,
           lineJoin: 'round' as const,
@@ -119,6 +131,7 @@ export const useDrawing = () => {
 
   return {
     lineObjects,
+    isDrawing,
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,

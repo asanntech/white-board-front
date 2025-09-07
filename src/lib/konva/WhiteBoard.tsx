@@ -1,6 +1,8 @@
 import { Stage, Layer, Line } from 'react-konva'
+import { useAtomValue } from 'jotai'
+import { toolAtom } from './atoms'
 import { useStageControl, useDrawing, useKeyboardListeners } from './hooks'
-import { Toolbar, GraphPaperLayer } from './components'
+import { Toolbar, GraphPaperLayer, Eraser } from './components'
 
 export const WhiteBoard = () => {
   return (
@@ -16,7 +18,11 @@ export const WhiteBoard = () => {
 
 const DrawingArea = () => {
   const { stageRef, width, height, scale, scaleAtPointer, restrictDragWithinCanvas, isSpacePressed } = useStageControl()
-  const { lineObjects, handlePointerDown, handlePointerMove, handlePointerUp, getDrawingConfig } = useDrawing()
+  const { lineObjects, isDrawing, handlePointerDown, handlePointerMove, handlePointerUp, getDrawingConfig } =
+    useDrawing()
+
+  const tool = useAtomValue(toolAtom)
+  const showEraser = tool === 'eraser' && isDrawing
 
   useKeyboardListeners()
 
@@ -36,8 +42,9 @@ const DrawingArea = () => {
       <Layer>
         {lineObjects.map((object) => {
           const config = getDrawingConfig(object)
-          return <Line key={object.id} points={object.points} {...config} />
+          return <Line key={object.id} name={object.type} points={object.points} {...config} />
         })}
+        {showEraser && <Eraser stageRef={stageRef} />}
       </Layer>
     </Stage>
   )

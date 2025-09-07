@@ -1,4 +1,4 @@
 import { atom } from 'jotai'
-import { Drawing } from '../types'
+import { Tool } from '../types'
 
-export const toolAtom = atom<Drawing>('pen')
+export const toolAtom = atom<Tool>('select')
