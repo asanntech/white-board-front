@@ -1,7 +1,6 @@
 import { Layer, Rect } from 'react-konva'
 import { useState, useMemo } from 'react'
-import { COLORS } from '@/shared/constants'
-import { canvasSize } from '../constants'
+import { canvasSize, whiteboardColors } from '../constants'
 
 interface Props {
   scale: number
@@ -23,11 +22,11 @@ export const GraphPaperLayer = ({ scale }: Props) => {
     canvas.width = size
     canvas.height = size
     const ctx = canvas.getContext('2d')!
-    ctx.fillStyle = COLORS.WHITEBOARD.BACKGROUND
+    ctx.fillStyle = whiteboardColors.background
     ctx.fillRect(0, 0, size, size)
 
     // 薄いグリッド線
-    ctx.strokeStyle = COLORS.WHITEBOARD.GRID_LINE
+    ctx.strokeStyle = whiteboardColors.gridLine
     ctx.lineWidth = 1
     for (let x = 0; x <= size; x += gridSize) {
       ctx.beginPath()
@@ -43,7 +42,7 @@ export const GraphPaperLayer = ({ scale }: Props) => {
     }
 
     // 太いグリッド線（5マスごと）
-    ctx.strokeStyle = COLORS.WHITEBOARD.GRID_LINE_BOLD
+    ctx.strokeStyle = whiteboardColors.gridLineBold
     ctx.lineWidth = 2
     for (let x = 0; x <= size; x += boldSize) {
       ctx.beginPath()
