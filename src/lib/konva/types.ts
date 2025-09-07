@@ -1,6 +1,6 @@
-export type Tool = 'select' | 'drawing' | 'text' | 'shape'
+export type Tool = 'select' | 'text' | 'shape' | 'pen' | 'marker' | 'eraser'
 
-export type Drawing = 'pen' | 'brush' | 'eraser'
+export type Drawing = Extract<Tool, 'pen' | 'marker' | 'eraser'>
 
 export interface DrawingObject {
   id: string
