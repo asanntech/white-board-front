@@ -1,10 +1,15 @@
-import { useAtom } from 'jotai'
+import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { toolAtom } from '../atoms'
+import { canUndoAtom, canRedoAtom, undoAtom, redoAtom } from '../atoms/undoRedoAtom'
 import { SelectIcon, PenIcon, UndoIcon, RedoIcon, BrushIcon, EraserIcon, RedPenIcon } from '@/components/icons'
 import { Tool } from '../types'
 
 export const Toolbar = () => {
   const [tool, setTool] = useAtom(toolAtom)
+  const canUndo = useAtomValue(canUndoAtom)
+  const canRedo = useAtomValue(canRedoAtom)
+  const undo = useSetAtom(undoAtom)
+  const redo = useSetAtom(redoAtom)
 
   const tools: { icon: React.ReactNode; id: Tool }[] = [
     { icon: <PenIcon />, id: 'pen' },
@@ -14,8 +19,18 @@ export const Toolbar = () => {
   ]
 
   const actions = [
-    { icon: <UndoIcon />, id: 'undo' },
-    { icon: <RedoIcon />, id: 'redo' },
+    {
+      icon: <UndoIcon />,
+      id: 'undo',
+      onClick: undo,
+      disabled: !canUndo,
+    },
+    {
+      icon: <RedoIcon />,
+      id: 'redo',
+      onClick: redo,
+      disabled: !canRedo,
+    },
   ]
 
   return (
@@ -27,17 +42,30 @@ export const Toolbar = () => {
       ))}
       <div className="w-full h-[1px] bg-gray-200" />
       {actions.map((action) => (
-        <IconButton key={action.id} icon={action.icon} />
+        <IconButton key={action.id} icon={action.icon} onClick={action.onClick} disabled={action.disabled} />
       ))}
     </div>
   )
 }
 
-const IconButton = ({ icon, active, onClick }: { icon: React.ReactNode; active?: boolean; onClick?: () => void }) => {
+const IconButton = ({
+  icon,
+  active,
+  onClick,
+  disabled = false,
+}: {
+  icon: React.ReactNode
+  active?: boolean
+  onClick?: () => void
+  disabled?: boolean
+}) => {
   return (
     <button
-      className={`rounded-md p-2 cursor-pointer hover:bg-neutral-100 ${active ? 'bg-neutral-100' : ''}`}
+      className={`rounded-md p-2 ${active ? 'bg-neutral-100' : ''} ${
+        disabled ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer hover:bg-neutral-100'
+      }`}
       onClick={onClick}
+      disabled={disabled}
     >
       {icon}
     </button>

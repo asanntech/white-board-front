@@ -1,9 +1,10 @@
 import { useState, useMemo, useCallback } from 'react'
-import { useAtomValue } from 'jotai'
+import { useAtomValue, useSetAtom } from 'jotai'
 import { KonvaEventObject } from 'konva/lib/Node'
 import { produce } from 'immer'
 import { useCanvasCoordinates } from './useCanvasCoordinates'
 import { toolAtom, spaceKeyPressAtom } from '../atoms'
+import { currentDrawingObjectsAtom, pushToHistoryAtom } from '../atoms/undoRedoAtom'
 import { DrawingObject } from '../types'
 
 export const useDrawing = () => {
@@ -32,7 +33,12 @@ export const useDrawing = () => {
 
   const isSpacePressed = useAtomValue(spaceKeyPressAtom)
 
-  const [lineObjects, setLineObjects] = useState<DrawingObject[]>([])
+  // 履歴管理のatomを使用
+  const lineObjects = useAtomValue(currentDrawingObjectsAtom)
+  const pushToHistory = useSetAtom(pushToHistoryAtom)
+
+  // 描画中の一時的な状態を管理
+  const [tempLineObjects, setTempLineObjects] = useState<DrawingObject[]>([])
 
   const { getPointerPosition } = useCanvasCoordinates()
 
@@ -51,13 +57,10 @@ export const useDrawing = () => {
       // ツールに応じた描画オブジェクトを作成
       const newObject = createDrawingObject([canvasPos.x, canvasPos.y])
 
-      setLineObjects(
-        produce((draft) => {
-          draft.push(newObject)
-        })
-      )
+      // 一時的な状態に追加（履歴には追加しない）
+      setTempLineObjects([...lineObjects, newObject])
     },
-    [isSpacePressed, drawingType, getPointerPosition, createDrawingObject]
+    [isSpacePressed, drawingType, getPointerPosition, createDrawingObject, lineObjects]
   )
 
   const handlePointerMove = useCallback(
@@ -70,8 +73,9 @@ export const useDrawing = () => {
       const canvasPos = getPointerPosition(stage)
       if (!canvasPos) return
 
-      setLineObjects(
-        produce((draft) => {
+      // 一時的な状態を更新（履歴には追加しない）
+      setTempLineObjects((prev) =>
+        produce(prev, (draft) => {
           const lastObject = draft[draft.length - 1]
           if (lastObject) {
             lastObject.points.push(canvasPos.x, canvasPos.y)
@@ -84,10 +88,19 @@ export const useDrawing = () => {
 
   const handlePointerUp = useCallback(() => {
     setIsDrawing(false)
-  }, [])
+
+    // 描画完了時に履歴に追加
+    if (tempLineObjects.length > 0) {
+      pushToHistory(tempLineObjects)
+      setTempLineObjects([])
+    }
+  }, [tempLineObjects, pushToHistory])
+
+  // 描画中は一時的な状態を表示、そうでなければ履歴の状態を表示
+  const displayObjects = isDrawing ? tempLineObjects : lineObjects
 
   return {
-    lineObjects,
+    lineObjects: displayObjects,
     isDrawing,
     handlePointerDown,
     handlePointerMove,
