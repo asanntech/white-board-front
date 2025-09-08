@@ -4,7 +4,7 @@ import { KonvaEventObject } from 'konva/lib/Node'
 import { produce } from 'immer'
 import { useCanvasCoordinates } from './useCanvasCoordinates'
 import { toolAtom, spaceKeyPressAtom } from '../atoms'
-import { currentDrawingObjectsAtom, pushToHistoryAtom } from '../atoms/undoRedoAtom'
+import { currentDrawingObjectsAtom, pushToHistoryAtom } from '../atoms'
 import { DrawingObject } from '../types'
 
 export const useDrawing = () => {

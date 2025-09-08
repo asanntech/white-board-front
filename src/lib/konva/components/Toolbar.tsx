@@ -1,6 +1,5 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { toolAtom } from '../atoms'
-import { canUndoAtom, canRedoAtom, undoAtom, redoAtom } from '../atoms/undoRedoAtom'
+import { toolAtom, canUndoAtom, canRedoAtom, undoAtom, redoAtom } from '../atoms'
 import { SelectIcon, PenIcon, UndoIcon, RedoIcon, BrushIcon, EraserIcon, RedPenIcon } from '@/components/icons'
 import { Tool } from '../types'
 
