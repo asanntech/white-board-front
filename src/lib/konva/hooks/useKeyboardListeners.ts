@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import { useSetAtom, useAtomValue } from 'jotai'
-import { keyPressStateAtom } from '../atoms'
-import { undoAtom, redoAtom, canUndoAtom, canRedoAtom } from '../atoms/undoRedoAtom'
+import { keyPressStateAtom, undoAtom, redoAtom, canUndoAtom, canRedoAtom } from '../atoms'
 
 export const useKeyboardListeners = () => {
   const setKeyPressState = useSetAtom(keyPressStateAtom)
