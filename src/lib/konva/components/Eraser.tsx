@@ -5,11 +5,15 @@ import { useCanvasCoordinates } from '../hooks'
 
 interface Props {
   stageRef: RefObject<Konva.Stage | null>
+  visible?: boolean
 }
 
-export const Eraser = ({ stageRef }: Props) => {
+export const Eraser = ({ stageRef, visible }: Props) => {
   const { getPointerPosition } = useCanvasCoordinates()
-  const position = stageRef.current && getPointerPosition(stageRef.current)
+
+  if (!stageRef.current || !visible) return null
+
+  const position = getPointerPosition(stageRef.current)
 
   return (
     <Group x={position?.x} y={position?.y}>
