@@ -4,6 +4,8 @@ export const whiteboardColors = {
   background: '#F2F2F2',
   gridLine: '#E9E9E9',
   gridLineBold: '#DFDFDF',
+  transformer: '#007bff',
+  selectionRectangle: '#0000ff4d',
 }
 
 export const lineConfig = {
