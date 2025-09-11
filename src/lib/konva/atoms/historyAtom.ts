@@ -54,6 +54,20 @@ export const addPointsToLineAtom = atom(null, (get, set, id: string, points: num
   set(historyAtom, { ...current, present: newPresent })
 })
 
+// 現在の描画オブジェクトから指定したIDのオブジェクトを削除
+export const removeLineAtom = atom(null, (get, set, id: string) => {
+  const current = get(historyAtom)
+
+  const newPresent = current.present.filter((node) => node.id() !== id)
+  const newHistory = {
+    past: [...current.past, current.present],
+    present: newPresent,
+    future: [],
+  }
+
+  set(historyAtom, newHistory)
+})
+
 // undo操作
 export const undoAtom = atom(null, (get, set) => {
   const current = get(historyAtom)
