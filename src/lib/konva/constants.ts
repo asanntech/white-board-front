@@ -10,8 +10,8 @@ export const whiteboardColors = {
 
 export const lineConfig = {
   pen: {
-    stroke: '#000000',
-    strokeWidth: 2,
+    stroke: '#333333',
+    strokeWidth: 12,
     tension: 0,
     lineCap: 'round' as const,
     lineJoin: 'round' as const,
@@ -19,7 +19,7 @@ export const lineConfig = {
   },
   redPen: {
     stroke: '#fa7d7d',
-    strokeWidth: 2,
+    strokeWidth: 12,
     tension: 0,
     lineCap: 'round' as const,
     lineJoin: 'round' as const,
@@ -35,11 +35,13 @@ export const lineConfig = {
     opacity: 0.5,
   },
   eraser: {
-    stroke: '#FFFFFF',
-    strokeWidth: 50,
+    stroke: '#CCCCCC',
+    strokeWidth: 4,
     tension: 0.5,
     lineCap: 'round' as const,
     lineJoin: 'round' as const,
-    globalCompositeOperation: 'destination-out' as const,
+    globalCompositeOperation: 'xor' as const,
+    opacity: 0.5,
+    listening: false, // 消しゴムは常に最背面に配置
   },
 }
