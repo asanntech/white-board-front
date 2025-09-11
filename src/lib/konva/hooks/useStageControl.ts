@@ -6,7 +6,7 @@ import { useScaleAtPointer } from './useScaleAtPointer'
 import { useViewportSize } from './useViewportSize'
 import { useDrawing } from './useDrawing'
 import { useSelectionRange } from './useSelectionRange'
-import { spaceKeyPressAtom, toolAtom, pushToHistoryAtom } from '../atoms'
+import { spaceKeyPressAtom, toolAtom, pushToHistoryAtom, removeLineAtom } from '../atoms'
 import { canvasSize } from '../constants'
 
 export const useStageControl = () => {
@@ -105,6 +105,17 @@ export const useStageControl = () => {
     transformedStateRef.current = true
   }, [])
 
+  const removeLine = useSetAtom(removeLineAtom)
+
+  const handleLinePointerOver = useCallback(
+    (e: KonvaEventObject<PointerEvent>) => {
+      if (tool === 'eraser' && isDrawing) {
+        removeLine(e.target.attrs.id)
+      }
+    },
+    [tool, isDrawing, removeLine]
+  )
+
   const pushToHistory = useSetAtom(pushToHistoryAtom)
 
   // 変形ツールに伴うノードの変更を履歴に追加
@@ -153,9 +164,6 @@ export const useStageControl = () => {
     transformerRef.current?.nodes([])
   }, [lineNodes.length])
 
-  // 消しゴム表示の判定
-  const showEraser = tool === 'eraser' && isDrawing
-
   return {
     stageRef,
     width,
@@ -164,8 +172,6 @@ export const useStageControl = () => {
     scaleAtPointer,
     restrictDragWithinCanvas,
     lineNodes,
-    isDrawing,
-    showEraser,
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,
@@ -173,6 +179,7 @@ export const useStageControl = () => {
     selectionRectRef,
     displaySelectionRect,
     visibleSelectionRect: selectionRectangle.visible,
+    handleLinePointerOver,
     transformerRef,
     changeTransformedState,
     pushTransformToHistory,

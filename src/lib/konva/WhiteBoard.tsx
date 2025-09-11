@@ -1,7 +1,9 @@
 import { Stage, Layer, Line, Rect, Transformer } from 'react-konva'
 import { useStageControl, useKeyboardListeners } from './hooks'
-import { Toolbar, GraphPaperLayer, Eraser } from './components'
+import { Toolbar, GraphPaperLayer } from './components'
 import { whiteboardColors } from './constants'
+import { useAtomValue } from 'jotai'
+import { eraserNodesAtom } from './atoms'
 
 export const WhiteBoard = () => {
   return (
@@ -25,19 +27,21 @@ const DrawingArea = () => {
     restrictDragWithinCanvas,
     isSpacePressed,
     lineNodes,
-    showEraser,
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,
     selectionRectRef,
     visibleSelectionRect,
     displaySelectionRect,
+    handleLinePointerOver,
     transformerRef,
     changeTransformedState,
     pushTransformToHistory,
   } = useStageControl()
 
   useKeyboardListeners()
+
+  const eraserNode = useAtomValue(eraserNodesAtom)
 
   return (
     <Stage
@@ -54,9 +58,10 @@ const DrawingArea = () => {
       <GraphPaperLayer scale={scale} />
       <Layer>
         {lineNodes.map((node) => (
-          <Line {...node.attrs} key={node.attrs.id} />
+          <Line {...node.attrs} key={node.attrs.id} onPointerOver={handleLinePointerOver} />
         ))}
-        <Eraser stageRef={stageRef} visible={showEraser} />
+        {/** 消しゴム */}
+        {<Line {...eraserNode?.attrs} visible={!!eraserNode} />}
         {/** 選択範囲の矩形 */}
         <Rect
           ref={selectionRectRef}
