@@ -39,7 +39,7 @@ const DrawingArea = () => {
     pushTransformToHistory,
   } = useStageControl()
 
-  useKeyboardListeners()
+  useKeyboardListeners(transformerRef)
 
   const eraserNode = useAtomValue(eraserNodesAtom)
 

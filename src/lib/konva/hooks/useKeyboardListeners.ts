@@ -1,17 +1,29 @@
-import { useEffect } from 'react'
+import { useEffect, RefObject } from 'react'
 import { useSetAtom, useAtomValue } from 'jotai'
-import { keyPressStateAtom, undoAtom, redoAtom, canUndoAtom, canRedoAtom } from '../atoms'
+import Konva from 'konva'
+import { keyPressStateAtom, undoAtom, redoAtom, canUndoAtom, canRedoAtom, removeLineAtom } from '../atoms'
 
-export const useKeyboardListeners = () => {
+export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer | null>) => {
   const setKeyPressState = useSetAtom(keyPressStateAtom)
   const undo = useSetAtom(undoAtom)
   const redo = useSetAtom(redoAtom)
   const canUndo = useAtomValue(canUndoAtom)
   const canRedo = useAtomValue(canRedoAtom)
+  const removeLine = useSetAtom(removeLineAtom)
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       setKeyPressState((prev) => ({ ...prev, [e.code]: true }))
+
+      // Delete キーで選択中のLineを削除
+      if (e.key === 'Delete' || e.key === 'Backspace') {
+        const transformer = transformerRef.current
+        if (!transformer || transformer.nodes().length === 0) return
+
+        const selectedNodeIds = transformer.nodes().map((node: Konva.Node) => node.id())
+        removeLine(selectedNodeIds)
+        transformer.nodes([]) // 選択をクリア
+      }
 
       // Undo/Redo ショートカット
       if (e.ctrlKey || e.metaKey) {
@@ -42,5 +54,5 @@ export const useKeyboardListeners = () => {
       window.removeEventListener('keyup', handleKeyUp)
       window.removeEventListener('blur', handleBlur)
     }
-  }, [setKeyPressState, undo, redo, canUndo, canRedo])
+  }, [setKeyPressState, undo, redo, canUndo, canRedo, removeLine, transformerRef])
 }

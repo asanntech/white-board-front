@@ -135,6 +135,9 @@ export const useStageControl = () => {
     const stage = stageRef.current
     if (!stage) return
 
+    const pos = stage.position()
+    if (pos.x !== 0 && pos.y !== 0) return
+
     const centerX = canvasSize / 2
     const centerY = canvasSize / 2
 
@@ -146,8 +149,6 @@ export const useStageControl = () => {
       x: viewportCenterX - centerX,
       y: viewportCenterY - centerY,
     })
-
-    stage.batchDraw()
   }, [width, height])
 
   // スペースキー押下中にカーソルを変更

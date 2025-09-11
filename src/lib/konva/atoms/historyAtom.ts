@@ -50,21 +50,22 @@ export const addPointsToLineAtom = atom(null, (get, set, id: string, points: num
     line.points([...line.points(), ...points])
     return line
   })
-
   set(historyAtom, { ...current, present: newPresent })
 })
 
 // 現在の描画オブジェクトから指定したIDのオブジェクトを削除
-export const removeLineAtom = atom(null, (get, set, id: string) => {
+export const removeLineAtom = atom(null, (get, set, id: string | string[]) => {
   const current = get(historyAtom)
 
-  const newPresent = current.present.filter((node) => node.id() !== id)
+  // 単一のIDまたは複数のIDに対応
+  const idsToRemove = Array.isArray(id) ? id : [id]
+  const newPresent = current.present.filter((node) => !idsToRemove.includes(node.id()))
+
   const newHistory = {
     past: [...current.past, current.present],
     present: newPresent,
     future: [],
   }
-
   set(historyAtom, newHistory)
 })
 
@@ -79,7 +80,6 @@ export const undoAtom = atom(null, (get, set) => {
     present: previous,
     future: [current.present, ...current.future],
   }
-
   set(historyAtom, newHistory)
 })
 
@@ -94,7 +94,6 @@ export const redoAtom = atom(null, (get, set) => {
     present: next,
     future: current.future.slice(1),
   }
-
   set(historyAtom, newHistory)
 })
 
