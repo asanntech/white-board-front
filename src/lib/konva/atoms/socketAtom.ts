@@ -5,7 +5,7 @@ import { pushToHistoryAtom, removeLineAtom, undoAtom, redoAtom } from './history
 import { Drawing } from '../types'
 
 type ServerToClientEvents = {
-  join: (roomId: string) => void
+  join: (clientId: string) => void
   drawing: (drawings: Drawing[]) => void
   transform: (transforms: Drawing[]) => void
   remove: (ids: string[]) => void
@@ -13,13 +13,13 @@ type ServerToClientEvents = {
   redo: (drawings: Drawing[]) => void
 }
 
-type ClientToServerEvents = {
-  join: (roomId: string) => void
-  drawing: (roomId: string, drawings: Drawing[]) => void
-  transform: (transforms: Drawing[]) => void
-  remove: (ids: string[]) => void
-  undo: (ids: string[]) => void
-  redo: (drawings: Drawing[]) => void
+export type ClientToServerEvents = {
+  join: (params: { roomId: string }) => void
+  drawing: (params: { roomId: string; drawings: Drawing[] }) => void
+  transform: (params: { roomId: string; drawings: Drawing[] }) => void
+  remove: (params: { roomId: string; ids: string[] }) => void
+  undo: (params: { roomId: string; ids: string[] }) => void
+  redo: (params: { roomId: string; drawings: Drawing[] }) => void
 }
 
 // Socketインスタンスを管理するAtom
@@ -57,7 +57,7 @@ export const initializeSocketAtom = atom(null, (get, set, roomId: string) => {
     set(socketConnectionAtom, true)
     set(socketErrorAtom, null)
     set(roomIdAtom, roomId)
-    newSocket.emit('join', roomId)
+    newSocket.emit('join', { roomId })
   })
 
   newSocket.on('disconnect', () => {
