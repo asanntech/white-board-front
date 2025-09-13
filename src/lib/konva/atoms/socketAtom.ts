@@ -35,7 +35,7 @@ export const socketErrorAtom = atom<string | null>(null)
 export const roomIdAtom = atom<string | null>(null)
 
 // Socketを初期化するAtom
-export const initializeSocketAtom = atom(null, (get, set, roomId: string) => {
+export const initializeSocketAtom = atom(null, (get, set, roomId: string, token: string) => {
   const currentSocket = get(socketAtom)
 
   // 既存のSocketがあれば切断
@@ -49,7 +49,7 @@ export const initializeSocketAtom = atom(null, (get, set, roomId: string) => {
     reconnectionDelay: 1000,
     reconnectionDelayMax: 5000,
     timeout: 10000,
-    // auth: { token, roomId },
+    auth: { token },
   })
 
   // イベントリスナーを設定
