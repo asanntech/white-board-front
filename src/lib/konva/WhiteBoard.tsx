@@ -2,8 +2,6 @@ import { Stage, Layer, Line, Rect, Transformer } from 'react-konva'
 import { useStageControl, useKeyboardListeners } from './hooks'
 import { Toolbar, GraphPaperLayer } from './components'
 import { whiteboardColors } from './constants'
-import { useAtomValue } from 'jotai'
-import { eraserNodesAtom } from './atoms'
 
 export const WhiteBoard = () => {
   return (
@@ -27,6 +25,7 @@ const DrawingArea = () => {
     restrictDragWithinCanvas,
     isSpacePressed,
     lineNodes,
+    eraserNode,
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,
@@ -40,8 +39,6 @@ const DrawingArea = () => {
   } = useStageControl()
 
   useKeyboardListeners(transformerRef)
-
-  const eraserNode = useAtomValue(eraserNodesAtom)
 
   return (
     <Stage

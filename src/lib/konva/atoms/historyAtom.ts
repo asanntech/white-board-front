@@ -16,7 +16,7 @@ const historyAtom = atom<{
 })
 
 // Lineオブジェクトを取得
-export const lineNodesAtom = atom((get) => {
+export const lineNodesAtom = atom<Konva.Line[]>((get) => {
   const nodes = get(historyAtom).present.filter((node) => node instanceof Konva.Line)
   const uniqueNodes = new Map()
 
@@ -30,11 +30,14 @@ export const lineNodesAtom = atom((get) => {
 })
 
 // 新しい状態を履歴に追加
-export const pushToHistoryAtom = atom(null, (get, set, newState: Konva.Node) => {
+export const pushToHistoryAtom = atom(null, (get, set, newState: Konva.Node | Konva.Node[]) => {
   const current = get(historyAtom)
+
+  const newPresent = Array.isArray(newState) ? newState : [newState]
+
   const newHistory = {
     past: [...current.past, current.present].slice(-MAX_HISTORY_SIZE),
-    present: [...current.present, newState],
+    present: [...current.present, ...newPresent],
     future: [], // 新しい状態を追加したら、futureはクリア
   }
   set(historyAtom, newHistory)
@@ -81,6 +84,9 @@ export const undoAtom = atom(null, (get, set) => {
     future: [current.present, ...current.future],
   }
   set(historyAtom, newHistory)
+
+  const ids = previous.map((node) => node.id())
+  return ids
 })
 
 // redo操作
@@ -95,6 +101,8 @@ export const redoAtom = atom(null, (get, set) => {
     future: current.future.slice(1),
   }
   set(historyAtom, newHistory)
+
+  return next as Konva.Node[]
 })
 
 // undo可能かどうか

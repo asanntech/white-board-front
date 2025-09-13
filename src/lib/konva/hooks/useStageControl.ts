@@ -6,8 +6,10 @@ import { useScaleAtPointer } from './useScaleAtPointer'
 import { useViewportSize } from './useViewportSize'
 import { useDrawing } from './useDrawing'
 import { useSelectionRange } from './useSelectionRange'
+import { useSocketManager } from './useSocketManager'
 import { spaceKeyPressAtom, toolAtom, pushToHistoryAtom, removeLineAtom } from '../atoms'
 import { canvasSize } from '../constants'
+import { Drawing } from '../types'
 
 export const useStageControl = () => {
   const stageRef = useRef<Konva.Stage>(null)
@@ -20,10 +22,12 @@ export const useStageControl = () => {
 
   const { scale, scaleAtPointer } = useScaleAtPointer(stageRef)
 
-  const { lineNodes, isDrawing, startDrawing, continueDrawing, finishDrawing } = useDrawing()
+  const { lineNodes, eraserNode, isDrawing, isPenMode, startDrawing, continueDrawing, finishDrawing } = useDrawing()
 
   const { selectionRectRef, selectionRectangle, displaySelectionRect, startSelection, updateSelection, endSelection } =
     useSelectionRange()
+
+  const { socket } = useSocketManager()
 
   // ドラッグ範囲をcanvas領域に制限する
   const restrictDragWithinCanvas = useCallback(
@@ -97,9 +101,11 @@ export const useStageControl = () => {
       const lines = getIntersectingLines()
       transformer.nodes(lines)
     } else {
-      finishDrawing()
+      const newLineNode = finishDrawing()
+      const drawings = newLineNode ? [newLineNode.attrs as Drawing] : []
+      if (newLineNode && isPenMode) socket?.emit('drawing', Math.random().toString(), drawings)
     }
-  }, [tool, finishDrawing, endSelection, getIntersectingLines])
+  }, [tool, socket, isPenMode, finishDrawing, endSelection, getIntersectingLines])
 
   const changeTransformedState = useCallback(() => {
     transformedStateRef.current = true
@@ -110,10 +116,12 @@ export const useStageControl = () => {
   const handleLinePointerOver = useCallback(
     (e: KonvaEventObject<PointerEvent>) => {
       if (tool === 'eraser' && isDrawing) {
-        removeLine(e.target.attrs.id)
+        const id = e.target.attrs.id
+        removeLine(id)
+        socket?.emit('remove', [id])
       }
     },
-    [tool, isDrawing, removeLine]
+    [tool, isDrawing, socket, removeLine]
   )
 
   const pushToHistory = useSetAtom(pushToHistoryAtom)
@@ -121,13 +129,21 @@ export const useStageControl = () => {
   // 変形ツールに伴うノードの変更を履歴に追加
   const pushTransformToHistory = useCallback(
     (e: Konva.KonvaEventObject<Event>) => {
+      let drawings: Drawing[] = []
+
       if (e.target instanceof Konva.Transformer) {
-        e.target.nodes().forEach((n) => pushToHistory(n.clone()))
+        const newNodes = e.target.nodes().map((n) => n.clone()) as Konva.Line[]
+        pushToHistory(newNodes)
+        drawings = newNodes.map((n) => n.attrs as Drawing)
       } else {
-        pushToHistory(e.target.clone())
+        const newNode = e.target.clone() as Konva.Line
+        pushToHistory(newNode)
+        drawings = [newNode.attrs as Drawing]
       }
+
+      socket?.emit('transform', drawings)
     },
-    [pushToHistory]
+    [socket, pushToHistory]
   )
 
   // 初期状態でカメラを中央に配置（初回のみ）
@@ -173,6 +189,7 @@ export const useStageControl = () => {
     scaleAtPointer,
     restrictDragWithinCanvas,
     lineNodes,
+    eraserNode,
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,

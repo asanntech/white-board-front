@@ -2,6 +2,8 @@ import { useEffect, RefObject } from 'react'
 import { useSetAtom, useAtomValue } from 'jotai'
 import Konva from 'konva'
 import { keyPressStateAtom, undoAtom, redoAtom, canUndoAtom, canRedoAtom, removeLineAtom } from '../atoms'
+import { useSocketManager } from './useSocketManager'
+import { Drawing } from '../types'
 
 export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer | null>) => {
   const setKeyPressState = useSetAtom(keyPressStateAtom)
@@ -10,6 +12,8 @@ export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer
   const canUndo = useAtomValue(canUndoAtom)
   const canRedo = useAtomValue(canRedoAtom)
   const removeLine = useSetAtom(removeLineAtom)
+
+  const { socket } = useSocketManager()
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -23,16 +27,21 @@ export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer
         const selectedNodeIds = transformer.nodes().map((node: Konva.Node) => node.id())
         removeLine(selectedNodeIds)
         transformer.nodes([]) // 選択をクリア
+
+        socket?.emit('remove', selectedNodeIds)
       }
 
       // Undo/Redo ショートカット
       if (e.ctrlKey || e.metaKey) {
         if (e.key === 'z' && !e.shiftKey && canUndo) {
           e.preventDefault()
-          undo()
+          const ids = undo()
+          if (ids) socket?.emit('undo', ids)
         } else if ((e.key === 'y' || (e.key === 'z' && e.shiftKey)) && canRedo) {
           e.preventDefault()
-          redo()
+          const nodes = redo()
+          const drawings = nodes?.map((node) => node.attrs as Drawing)
+          if (drawings) socket?.emit('redo', drawings)
         }
       }
     }
@@ -54,5 +63,5 @@ export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer
       window.removeEventListener('keyup', handleKeyUp)
       window.removeEventListener('blur', handleBlur)
     }
-  }, [setKeyPressState, undo, redo, canUndo, canRedo, removeLine, transformerRef])
+  }, [setKeyPressState, undo, redo, canUndo, canRedo, removeLine, transformerRef, socket])
 }
