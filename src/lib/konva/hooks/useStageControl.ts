@@ -7,7 +7,7 @@ import { useViewportSize } from './useViewportSize'
 import { useDrawing } from './useDrawing'
 import { useSelectionRange } from './useSelectionRange'
 import { useSocketManager } from './useSocketManager'
-import { spaceKeyPressAtom, toolAtom, pushToHistoryAtom, removeLineAtom } from '../atoms'
+import { spaceKeyPressAtom, toolAtom, pushToHistoryAtom, removeLineAtom, isReadyCanvasAtom } from '../atoms'
 import { canvasSize } from '../constants'
 import { Drawing } from '../types'
 
@@ -27,7 +27,7 @@ export const useStageControl = () => {
   const { selectionRectRef, selectionRectangle, displaySelectionRect, startSelection, updateSelection, endSelection } =
     useSelectionRange()
 
-  const { socket } = useSocketManager()
+  const { emitRemove, emitDrawing, emitTransform } = useSocketManager()
 
   // ドラッグ範囲をcanvas領域に制限する
   const restrictDragWithinCanvas = useCallback(
@@ -103,9 +103,9 @@ export const useStageControl = () => {
     } else {
       const newLineNode = finishDrawing()
       const drawings = newLineNode ? [newLineNode.attrs as Drawing] : []
-      if (newLineNode && isPenMode) socket?.emit('drawing', Math.random().toString(), drawings)
+      if (newLineNode && isPenMode) emitDrawing(drawings)
     }
-  }, [tool, socket, isPenMode, finishDrawing, endSelection, getIntersectingLines])
+  }, [tool, emitDrawing, isPenMode, finishDrawing, endSelection, getIntersectingLines])
 
   const changeTransformedState = useCallback(() => {
     transformedStateRef.current = true
@@ -118,10 +118,10 @@ export const useStageControl = () => {
       if (tool === 'eraser' && isDrawing) {
         const id = e.target.attrs.id
         removeLine(id)
-        socket?.emit('remove', [id])
+        emitRemove([id])
       }
     },
-    [tool, isDrawing, socket, removeLine]
+    [tool, isDrawing, emitRemove, removeLine]
   )
 
   const pushToHistory = useSetAtom(pushToHistoryAtom)
@@ -141,10 +141,12 @@ export const useStageControl = () => {
         drawings = [newNode.attrs as Drawing]
       }
 
-      socket?.emit('transform', drawings)
+      emitTransform(drawings)
     },
-    [socket, pushToHistory]
+    [emitTransform, pushToHistory]
   )
+
+  const setIsReadyCanvas = useSetAtom(isReadyCanvasAtom)
 
   // 初期状態でカメラを中央に配置（初回のみ）
   useEffect(() => {
@@ -165,7 +167,9 @@ export const useStageControl = () => {
       x: viewportCenterX - centerX,
       y: viewportCenterY - centerY,
     })
-  }, [width, height])
+
+    setIsReadyCanvas(true)
+  }, [width, height, setIsReadyCanvas])
 
   // スペースキー押下中にカーソルを変更
   useEffect(() => {
