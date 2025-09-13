@@ -11,7 +11,7 @@ export const Toolbar = () => {
   const undo = useSetAtom(undoAtom)
   const redo = useSetAtom(redoAtom)
 
-  const { socket } = useSocketManager()
+  const { emitUndo, emitRedo } = useSocketManager()
 
   const tools: { icon: React.ReactNode; id: Tool }[] = [
     { icon: <PenIcon />, id: 'pen' },
@@ -26,7 +26,7 @@ export const Toolbar = () => {
       id: 'undo',
       onClick: () => {
         const ids = undo()
-        if (ids) socket?.emit('undo', ids)
+        if (ids) emitUndo(ids)
       },
       disabled: !canUndo,
     },
@@ -36,7 +36,7 @@ export const Toolbar = () => {
       onClick: () => {
         const nodes = redo()
         const drawings = nodes?.map((node) => node.attrs as Drawing)
-        if (drawings) socket?.emit('redo', drawings)
+        if (drawings) emitRedo(drawings)
       },
       disabled: !canRedo,
     },
