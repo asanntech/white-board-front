@@ -1,9 +1,9 @@
-import { useState, useMemo, useCallback, useRef } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { useAtomValue, useSetAtom } from 'jotai'
 import Konva from 'konva'
 import { useCanvasCoordinates } from './useCanvasCoordinates'
 import { toolAtom, spaceKeyPressAtom } from '../atoms'
-import { lineNodesAtom, pushToHistoryAtom, addPointsToLineAtom, eraserNodesAtom, addPointsToEraserAtom } from '../atoms'
+import { lineNodesAtom, pushToHistoryAtom } from '../atoms'
 import { lineConfig } from '../constants'
 import { Tool } from '../types'
 
@@ -15,22 +15,22 @@ export const useDrawing = () => {
     return tool === 'pen' || tool === 'redPen' || tool === 'marker' || tool === 'eraser' ? tool : undefined
   }, [tool])
 
-  const [isDrawing, setIsDrawing] = useState(false)
+  const isPenMode = useMemo(() => {
+    return drawingType === 'pen' || drawingType === 'redPen' || drawingType === 'marker'
+  }, [drawingType])
 
   const isSpacePressed = useAtomValue(spaceKeyPressAtom)
 
-  const lineNodes = useAtomValue(lineNodesAtom)
+  const displayLineNodes = useAtomValue(lineNodesAtom)
   const pushToHistory = useSetAtom(pushToHistoryAtom)
-  const addPointsToLine = useSetAtom(addPointsToLineAtom)
-
-  const setEraserNodes = useSetAtom(eraserNodesAtom)
-  const addPointsToEraser = useSetAtom(addPointsToEraserAtom)
 
   const { getPointerPosition } = useCanvasCoordinates()
 
-  // 新しいLineオブジェクトのIDを管理
-  const newObjectIdRef = useRef('')
+  // 一時的なLineオブジェクトを管理
+  // 一筆書き後にまとめて履歴に追加するために使用
+  const [tempLineNode, setTempLineNode] = useState<Konva.Line | null>(null)
 
+  // 描画を開始する
   const startDrawing = useCallback(
     (e: Konva.KonvaEventObject<PointerEvent>) => {
       if (isSpacePressed || !drawingType) return
@@ -41,53 +41,58 @@ export const useDrawing = () => {
       const pointerPos = getPointerPosition(stage)
       if (!pointerPos) return
 
-      setIsDrawing(true)
-
       const newLineNode = createLineObject(drawingType, [pointerPos.x, pointerPos.y])
-
-      if (drawingType === 'eraser') {
-        setEraserNodes(newLineNode)
-      } else {
-        pushToHistory(newLineNode)
-      }
-
-      newObjectIdRef.current = newLineNode.id()
+      setTempLineNode(newLineNode)
     },
-    [isSpacePressed, drawingType, getPointerPosition, pushToHistory, setEraserNodes]
+    [isSpacePressed, drawingType, getPointerPosition]
   )
 
+  // 描画を継続する
   const continueDrawing = useCallback(
     (e: Konva.KonvaEventObject<PointerEvent>) => {
-      if (!isDrawing) return
-
       const stage = e.target.getStage()
       if (!stage) return
 
       const pointerPos = getPointerPosition(stage)
       if (!pointerPos) return
 
-      if (drawingType === 'eraser') {
-        addPointsToEraser([pointerPos.x, pointerPos.y])
-      } else {
-        addPointsToLine(newObjectIdRef.current, [pointerPos.x, pointerPos.y])
-      }
+      setTempLineNode((prev) => {
+        if (!prev) return null
+        const newLineNode = prev.clone()
+        newLineNode.points([...prev.points(), pointerPos.x, pointerPos.y])
+        return newLineNode
+      })
     },
-    [isDrawing, drawingType, addPointsToLine, addPointsToEraser, getPointerPosition]
+    [getPointerPosition]
   )
 
+  // 描画を終了する
   const finishDrawing = useCallback(() => {
-    setIsDrawing(false)
+    const newLineNode = tempLineNode as Konva.Line
+    if (!newLineNode) return
 
-    if (drawingType === 'eraser') {
-      setEraserNodes(undefined)
+    setTempLineNode(null)
+
+    if (isPenMode) {
+      pushToHistory(newLineNode)
     }
 
-    newObjectIdRef.current = ''
-  }, [drawingType, setEraserNodes])
+    return newLineNode
+  }, [isPenMode, tempLineNode, pushToHistory])
+
+  const lineNodes = useMemo(() => {
+    return tempLineNode && isPenMode ? [...displayLineNodes, tempLineNode] : displayLineNodes
+  }, [tempLineNode, displayLineNodes, isPenMode])
+
+  const eraserNode = useMemo(() => {
+    return tempLineNode && !isPenMode ? tempLineNode : null
+  }, [tempLineNode, isPenMode])
 
   return {
     lineNodes,
-    isDrawing,
+    eraserNode,
+    isDrawing: !!tempLineNode,
+    isPenMode,
     startDrawing,
     continueDrawing,
     finishDrawing,
@@ -97,7 +102,7 @@ export const useDrawing = () => {
 // Lineオブジェクトを作成する関数
 function createLineObject(type: Extract<Tool, 'pen' | 'redPen' | 'marker' | 'eraser'>, points: number[]): Konva.Line {
   return new Konva.Line({
-    id: `${type}-${Date.now()}`,
+    id: `${type}-${Date.now()}-${Math.random()}`,
     type: 'pen',
     points,
     ...lineConfig[type],
