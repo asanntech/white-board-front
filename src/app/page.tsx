@@ -5,6 +5,8 @@ import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useGetTokenQuery } from '@/features/auth'
+import { ErrorBoundary } from 'react-error-boundary'
+import { ErrorFallback } from '@/components/error'
 
 const WhiteBoard = dynamic(() => import('@/lib/konva').then((mod) => mod.WhiteBoard), {
   ssr: false,
@@ -29,7 +31,9 @@ const queryClient = new QueryClient({
 export default function Home() {
   return (
     <QueryClientProvider client={queryClient}>
-      <Contents />
+      <ErrorBoundary FallbackComponent={ErrorFallback}>
+        <Contents />
+      </ErrorBoundary>
     </QueryClientProvider>
   )
 }
