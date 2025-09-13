@@ -13,7 +13,7 @@ export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer
   const canRedo = useAtomValue(canRedoAtom)
   const removeLine = useSetAtom(removeLineAtom)
 
-  const { socket } = useSocketManager()
+  const { emitRemove, emitUndo, emitRedo } = useSocketManager()
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -28,7 +28,7 @@ export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer
         removeLine(selectedNodeIds)
         transformer.nodes([]) // 選択をクリア
 
-        socket?.emit('remove', selectedNodeIds)
+        emitRemove(selectedNodeIds)
       }
 
       // Undo/Redo ショートカット
@@ -36,12 +36,12 @@ export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer
         if (e.key === 'z' && !e.shiftKey && canUndo) {
           e.preventDefault()
           const ids = undo()
-          if (ids) socket?.emit('undo', ids)
+          if (ids) emitUndo(ids)
         } else if ((e.key === 'y' || (e.key === 'z' && e.shiftKey)) && canRedo) {
           e.preventDefault()
           const nodes = redo()
           const drawings = nodes?.map((node) => node.attrs as Drawing)
-          if (drawings) socket?.emit('redo', drawings)
+          if (drawings) emitRedo(drawings)
         }
       }
     }
@@ -63,5 +63,5 @@ export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer
       window.removeEventListener('keyup', handleKeyUp)
       window.removeEventListener('blur', handleBlur)
     }
-  }, [setKeyPressState, undo, redo, canUndo, canRedo, removeLine, transformerRef, socket])
+  }, [setKeyPressState, undo, redo, canUndo, canRedo, removeLine, transformerRef, emitRemove, emitUndo, emitRedo])
 }
