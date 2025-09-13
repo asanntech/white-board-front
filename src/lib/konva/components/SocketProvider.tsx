@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import { useAtomValue, useSetAtom } from 'jotai'
 import { socketConnectionAtom, initializeSocketAtom, disconnectSocketAtom, socketErrorAtom } from '../atoms/socketAtom'
+import { AuthApi } from '@/features/auth/api'
 
 export const SocketProvider = ({ children, roomId }: { children: React.ReactNode; roomId: string }) => {
   const isConnected = useAtomValue(socketConnectionAtom)
@@ -9,7 +10,14 @@ export const SocketProvider = ({ children, roomId }: { children: React.ReactNode
   const socketError = useAtomValue(socketErrorAtom)
 
   useEffect(() => {
-    initializeSocket(roomId)
+    const init = async () => {
+      const authApi = new AuthApi()
+      const token = await authApi.getToken()
+      if (!token.hasToken) throw new Error('No token found')
+      initializeSocket(roomId, token.accessToken)
+    }
+
+    init()
 
     return () => {
       disconnectSocket()
