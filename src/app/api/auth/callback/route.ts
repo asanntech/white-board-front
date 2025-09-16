@@ -25,5 +25,5 @@ export async function GET(request: Request) {
   const expired = addSeconds(new Date(), res.expiresIn).getTime().toString()
   cookieStore.set(TOKEN_COOKIE_KEYS.EXPIRED, expired, cookieOptions)
 
-  return Response.redirect('http://localhost:3000/room/1', 301)
+  return Response.redirect('http://localhost:3000/room', 301)
 }
