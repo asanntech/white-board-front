@@ -9,6 +9,8 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { ErrorFallback } from '@/components/error'
 import { MainMenu } from '@/components/menu'
 import { signInUrl } from '@/shared/constants'
+import { userAtom } from '@/atoms'
+import { useAtomValue } from 'jotai'
 
 const WhiteBoard = dynamic(() => import('@/lib/konva').then((mod) => mod.WhiteBoard), {
   ssr: false,
@@ -36,14 +38,15 @@ const Contents = () => {
   const router = useRouter()
 
   const { data: token, isLoading: isTokenLoading } = useGetTokenQuery()
+  const user = useAtomValue(userAtom)
 
   useEffect(() => {
     if (isTokenLoading) return
 
-    if (token?.hasToken) {
-      router.replace('/room/1')
+    if (token?.hasToken && user?.id) {
+      router.replace(`/room/${user.id}`)
     }
-  }, [router, token?.hasToken, isTokenLoading])
+  }, [router, token?.hasToken, isTokenLoading, user?.id])
 
   const [selectedFreeTrial, setSelectedFreeTrial] = useState(false)
 

@@ -6,6 +6,8 @@ import { useRouter } from 'next/navigation'
 import { ErrorBoundary, useErrorBoundary } from 'react-error-boundary'
 import { useGetTokenQuery, useVerifyMutation } from '@/features/auth'
 import { ErrorFallback } from '@/components/error'
+import { useSetAtom } from 'jotai'
+import { userAtom } from '@/atoms'
 
 interface Props {
   children: React.ReactNode
@@ -30,11 +32,17 @@ const Contents = ({ children }: Props) => {
 
   const { data: token, isLoading: isTokenLoading } = useGetTokenQuery()
 
+  const setUser = useSetAtom(userAtom)
+
   const {
     mutate: verifyMutate,
-    data: isVerifySuccess,
+    data: verifyData,
     isPending: isVerifyPending,
   } = useVerifyMutation({
+    onSuccess: (user) => {
+      setUser(user)
+      router.replace(`/room/${user.id}`)
+    },
     onError: (err) => {
       showBoundary({ ...err, status: 401 })
     },
@@ -54,7 +62,7 @@ const Contents = ({ children }: Props) => {
 
   if (isVerifyPending) return <p>Loading...</p>
 
-  if (!isVerifySuccess) return null
+  if (!verifyData) return null
 
   return children
 }
