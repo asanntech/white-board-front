@@ -1,6 +1,7 @@
 import { apiClient } from '@/lib/open-api'
 import { AuthEntity, AuthRepository } from '@/features/auth/domain'
 import { AuthApiResult, AuthToken } from '@/shared/types'
+import { AuthVerifyResponseDto } from '@/lib/open-api/api-client'
 
 export class AuthApi implements AuthRepository {
   private static token: AuthToken
@@ -54,8 +55,8 @@ export class AuthApi implements AuthRepository {
   }
 
   // トークンを検証する
-  public async verify(idToken: string) {
+  public async verify(idToken: string): Promise<AuthVerifyResponseDto> {
     const res = await apiClient.auth.verify({ requestBody: { idToken } })
-    return !!res
+    return res
   }
 }
