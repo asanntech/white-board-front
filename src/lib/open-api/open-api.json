@@ -31,7 +31,37 @@
           }
         },
         "summary": "Verify Token",
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
+      }
+    },
+    "/rooms": {
+      "post": {
+        "operationId": "createRoom",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateRoomDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Room created successfully"
+          },
+          "400": {
+            "description": "Bad request"
+          }
+        },
+        "summary": "Create a new room",
+        "tags": [
+          "rooms"
+        ]
       }
     }
   },
@@ -54,12 +84,14 @@
             "example": "eyJraWQiOiExample...IDToken"
           }
         },
-        "required": ["idToken"]
+        "required": [
+          "idToken"
+        ]
       },
       "AuthVerifyResponseDto": {
         "type": "object",
         "properties": {
-          "sub": {
+          "id": {
             "type": "string",
             "description": "ユーザーID",
             "example": "abc123"
@@ -90,7 +122,33 @@
             "example": 1717987200
           }
         },
-        "required": ["sub", "lastName", "firstName", "email", "exp", "iat"]
+        "required": [
+          "id",
+          "lastName",
+          "firstName",
+          "email",
+          "exp",
+          "iat"
+        ]
+      },
+      "CreateRoomDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Room name",
+            "example": "My Whiteboard Room"
+          },
+          "createdBy": {
+            "type": "string",
+            "description": "User ID who creates the room",
+            "example": "user123"
+          }
+        },
+        "required": [
+          "name",
+          "createdBy"
+        ]
       }
     }
   }
