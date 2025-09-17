@@ -6,7 +6,11 @@ export type AuthVerifyResponseDto = {
     /**
      * ユーザーID
      */
-    id: string;
+    userId: string;
+    /**
+     * ルームID
+     */
+    roomId: string;
     /**
      * 姓
      */

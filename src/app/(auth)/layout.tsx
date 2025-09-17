@@ -1,19 +1,16 @@
 'use client'
 
 import { useEffect } from 'react'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { QueryClientProvider } from '@tanstack/react-query'
 import { useRouter } from 'next/navigation'
-import { ErrorBoundary, useErrorBoundary } from 'react-error-boundary'
-import { useGetTokenQuery, useVerifyMutation } from '@/features/auth'
+import { ErrorBoundary } from 'react-error-boundary'
+import { useAuthSession } from '@/features/auth'
 import { ErrorFallback } from '@/components/error'
-import { useSetAtom } from 'jotai'
-import { userAtom } from '@/atoms'
+import { queryClient } from '@/lib/react-query'
 
 interface Props {
   children: React.ReactNode
 }
-
-const queryClient = new QueryClient()
 
 export default function AuthLayout({ children }: Props) {
   return (
@@ -28,41 +25,20 @@ export default function AuthLayout({ children }: Props) {
 const Contents = ({ children }: Props) => {
   const router = useRouter()
 
-  const { showBoundary } = useErrorBoundary()
-
-  const { data: token, isLoading: isTokenLoading } = useGetTokenQuery()
-
-  const setUser = useSetAtom(userAtom)
-
-  const {
-    mutate: verifyMutate,
-    data: verifyData,
-    isPending: isVerifyPending,
-  } = useVerifyMutation({
-    onSuccess: (user) => {
-      setUser(user)
-      router.replace(`/room/${user.id}`)
-    },
-    onError: (err) => {
-      showBoundary({ ...err, status: 401 })
-    },
-  })
+  const { data: authData, isLoading: isAuthLoading } = useAuthSession()
 
   useEffect(() => {
-    if (isTokenLoading) return
+    if (isAuthLoading) return
 
     // トークンが存在しない場合はリダイレクト
-    if (!token?.hasToken) {
+    if (!authData?.hasToken) {
       router.replace('/')
-      return
+    } else {
+      router.replace(`/room/${authData.roomId}`)
     }
+  }, [isAuthLoading, router, authData])
 
-    verifyMutate({ idToken: token.idToken })
-  }, [isTokenLoading, router, token, verifyMutate])
-
-  if (isVerifyPending) return <p>Loading...</p>
-
-  if (!verifyData) return null
+  if (isAuthLoading || !authData?.hasToken) return <p>Loading...</p>
 
   return children
 }
