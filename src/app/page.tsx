@@ -3,25 +3,16 @@
 import { useState, useEffect } from 'react'
 import dynamic from 'next/dynamic'
 import { useRouter } from 'next/navigation'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import { useGetTokenQuery } from '@/features/auth'
+import { QueryClientProvider } from '@tanstack/react-query'
+import { useAuthSession } from '@/features/auth'
 import { ErrorBoundary } from 'react-error-boundary'
 import { ErrorFallback } from '@/components/error'
 import { MainMenu } from '@/components/menu'
 import { signInUrl } from '@/shared/constants'
-import { userAtom } from '@/atoms'
-import { useAtomValue } from 'jotai'
+import { queryClient } from '@/lib/react-query'
 
 const WhiteBoard = dynamic(() => import('@/lib/konva').then((mod) => mod.WhiteBoard), {
   ssr: false,
-})
-
-const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-    },
-  },
 })
 
 export default function Home() {
@@ -37,20 +28,17 @@ export default function Home() {
 const Contents = () => {
   const router = useRouter()
 
-  const { data: token, isLoading: isTokenLoading } = useGetTokenQuery()
-  const user = useAtomValue(userAtom)
+  const { data: authData, isLoading: isAuthLoading } = useAuthSession()
 
   useEffect(() => {
-    if (isTokenLoading) return
-
-    if (token?.hasToken && user?.id) {
-      router.replace(`/room/${user.id}`)
+    if (!isAuthLoading && authData?.hasToken) {
+      router.replace(`/room/${authData.roomId}`)
     }
-  }, [router, token?.hasToken, isTokenLoading, user?.id])
+  }, [router, authData, isAuthLoading])
 
   const [selectedFreeTrial, setSelectedFreeTrial] = useState(false)
 
-  if (isTokenLoading || token?.hasToken) return <p>Loading...</p>
+  if (isAuthLoading || authData?.hasToken) return <p>Loading...</p>
 
   return (
     <div className="relative">
