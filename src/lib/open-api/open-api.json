@@ -91,9 +91,14 @@
       "AuthVerifyResponseDto": {
         "type": "object",
         "properties": {
-          "id": {
+          "userId": {
             "type": "string",
             "description": "ユーザーID",
+            "example": "abc123"
+          },
+          "roomId": {
+            "type": "string",
+            "description": "ルームID",
             "example": "abc123"
           },
           "lastName": {
@@ -123,7 +128,8 @@
           }
         },
         "required": [
-          "id",
+          "userId",
+          "roomId",
           "lastName",
           "firstName",
           "email",
