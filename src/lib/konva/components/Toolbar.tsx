@@ -2,7 +2,7 @@ import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { toolAtom, canUndoAtom, canRedoAtom, undoAtom, redoAtom } from '../atoms'
 import { SelectIcon, PenIcon, UndoIcon, RedoIcon, BrushIcon, EraserIcon, RedPenIcon } from '@/components/icons'
 import { useSocketManager } from '../hooks/useSocketManager'
-import { Tool, Drawing } from '../types'
+import { Tool } from '../types'
 
 export const Toolbar = () => {
   const [tool, setTool] = useAtom(toolAtom)
@@ -25,8 +25,8 @@ export const Toolbar = () => {
       icon: <UndoIcon />,
       id: 'undo',
       onClick: () => {
-        const ids = undo()
-        if (ids) emitUndo(ids)
+        const results = undo()
+        if (results) emitUndo(results)
       },
       disabled: !canUndo,
     },
@@ -34,9 +34,8 @@ export const Toolbar = () => {
       icon: <RedoIcon />,
       id: 'redo',
       onClick: () => {
-        const nodes = redo()
-        const drawings = nodes?.map((node) => node.attrs as Drawing)
-        if (drawings) emitRedo(drawings)
+        const results = redo()
+        if (results) emitRedo(results)
       },
       disabled: !canRedo,
     },
