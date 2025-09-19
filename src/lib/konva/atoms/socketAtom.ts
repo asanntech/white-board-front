@@ -5,12 +5,13 @@ import { pushToHistoryAtom, removeLineAtom, undoAtom, redoAtom } from './history
 import { Drawing } from '../types'
 
 type ServerToClientEvents = {
-  join: (clientId: string) => void
   drawing: (drawings: Drawing[]) => void
   transform: (transforms: Drawing[]) => void
   remove: (ids: string[]) => void
   undo: (ids: string[]) => void
   redo: (drawings: Drawing[]) => void
+  roomData: (drawings: Drawing[]) => void
+  userEntered: (userId: string) => void
 }
 
 export type ClientToServerEvents = {
@@ -18,7 +19,7 @@ export type ClientToServerEvents = {
   drawing: (params: { roomId: string; drawings: Drawing[] }) => void
   transform: (params: { roomId: string; drawings: Drawing[] }) => void
   remove: (params: { roomId: string; ids: string[] }) => void
-  undo: (params: { roomId: string; ids: string[] }) => void
+  undo: (params: { roomId: string; drawings: Drawing[] }) => void
   redo: (params: { roomId: string; drawings: Drawing[] }) => void
 }
 
@@ -69,8 +70,13 @@ export const initializeSocketAtom = atom(null, (get, set, roomId: string, token:
     set(socketErrorAtom, 'Connection failed')
   })
 
-  newSocket.on('join', (roomId: string) => {
-    console.log(`receive join: ${roomId}`)
+  newSocket.on('roomData', (drawings: Drawing[]) => {
+    const newLineNodes = drawings.map((drawing) => new Konva.Line({ ...drawing }))
+    set(pushToHistoryAtom, newLineNodes)
+  })
+
+  newSocket.on('userEntered', (userId: string) => {
+    console.log(`user ${userId} entered the room`)
   })
 
   newSocket.on('drawing', (drawings: Drawing[]) => {
