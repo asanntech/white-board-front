@@ -1,5 +1,5 @@
-export * from './historyAtom'
+export * from './drawingHistoryAtom'
+export * from './canvasAtom'
 export * from './toolAtom'
 export * from './keyboardAtom'
-export * from './eraserAtom'
 export * from './socketAtom'
