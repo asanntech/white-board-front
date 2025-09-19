@@ -2,14 +2,14 @@ import { atom } from 'jotai'
 import { io, Socket } from 'socket.io-client'
 import Konva from 'konva'
 import { pushToHistoryAtom, removeLineAtom, undoAtom, redoAtom } from './drawingHistoryAtom'
-import { Drawing } from '../types'
+import { Drawing, UndoRedoResult } from '../types'
 
 type ServerToClientEvents = {
   drawing: (drawings: Drawing[]) => void
   transform: (transforms: Drawing[]) => void
   remove: (ids: string[]) => void
-  undo: (ids: string[]) => void
-  redo: (drawings: Drawing[]) => void
+  undoDrawings: (drawings: Drawing[]) => void
+  redoDrawings: (drawings: Drawing[]) => void
   roomData: (drawings: Drawing[]) => void
   userEntered: (userId: string) => void
 }
@@ -19,8 +19,8 @@ export type ClientToServerEvents = {
   drawing: (params: { roomId: string; drawings: Drawing[] }) => void
   transform: (params: { roomId: string; drawings: Drawing[] }) => void
   remove: (params: { roomId: string; ids: string[] }) => void
-  undo: (params: { roomId: string; drawings: Drawing[] }) => void
-  redo: (params: { roomId: string; drawings: Drawing[] }) => void
+  undo: (params: { roomId: string; undoRedoResult: UndoRedoResult }) => void
+  redo: (params: { roomId: string; undoRedoResult: UndoRedoResult }) => void
 }
 
 // Socketインスタンスを管理するAtom
@@ -44,7 +44,7 @@ export const initializeSocketAtom = atom(null, (get, set, roomId: string, token:
     currentSocket.disconnect()
   }
 
-  const newSocket = io(process.env.NEXT_PUBLIC_WS_WHITE_BOARD, {
+  const newSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(process.env.NEXT_PUBLIC_WS_WHITE_BOARD, {
     transports: ['websocket'],
     reconnectionAttempts: 5,
     reconnectionDelay: 1000,
@@ -93,13 +93,11 @@ export const initializeSocketAtom = atom(null, (get, set, roomId: string, token:
     set(removeLineAtom, ids)
   })
 
-  newSocket.on('undo', (ids: string[]) => {
-    console.log(`receive undo: ${ids}`)
+  newSocket.on('undoDrawings', () => {
     set(undoAtom)
   })
 
-  newSocket.on('redo', (drawings: Drawing[]) => {
-    console.log(`receive redo: ${drawings}`)
+  newSocket.on('redoDrawings', () => {
     set(redoAtom)
   })
 
