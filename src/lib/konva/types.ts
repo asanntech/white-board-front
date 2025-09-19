@@ -14,3 +14,8 @@ export type Drawing = {
   skewX?: number
   skewY?: number
 }
+
+export type UndoRedoResult = {
+  action: 'delete' | 'restore' | 'transform'
+  objects: Drawing[]
+}
