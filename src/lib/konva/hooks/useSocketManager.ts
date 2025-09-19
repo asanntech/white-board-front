@@ -8,7 +8,7 @@ import {
   initializeSocketAtom,
   disconnectSocketAtom,
 } from '../atoms/socketAtom'
-import { Drawing } from '../types'
+import { Drawing, UndoRedoResult } from '../types'
 
 // Socket接続を管理
 export const useSocketManager = () => {
@@ -44,17 +44,17 @@ export const useSocketManager = () => {
   )
 
   const emitUndo = useCallback(
-    (ids: string[]) => {
+    (undoRedoResult: UndoRedoResult) => {
       if (!socket || !roomId) return
-      socket.emit('undo', { roomId, ids })
+      socket.emit('undo', { roomId, undoRedoResult })
     },
     [socket, roomId]
   )
 
   const emitRedo = useCallback(
-    (drawings: Drawing[]) => {
+    (undoRedoResult: UndoRedoResult) => {
       if (!socket || !roomId) return
-      socket.emit('redo', { roomId, drawings })
+      socket.emit('redo', { roomId, undoRedoResult })
     },
     [socket, roomId]
   )
