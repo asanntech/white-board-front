@@ -1,5 +1,6 @@
 import { atom } from 'jotai'
 import Konva from 'konva'
+import { Drawing } from '../types'
 
 // 描画オブジェクトの履歴管理
 const MAX_HISTORY_SIZE = 30
@@ -85,8 +86,23 @@ export const undoAtom = atom(null, (get, set) => {
   }
   set(historyAtom, newHistory)
 
-  const ids = previous.map((node) => node.id())
-  return ids
+  // 削除されたオブジェクトを抽出
+  const deletedObjects = extractDeletedObjects(previous, current.present)
+  if (deletedObjects.objects.length > 0) {
+    return deletedObjects
+  }
+
+  // 復元されたオブジェクトを抽出
+  const restoredObjects = extractRestoredObjects(previous, current.present)
+  if (restoredObjects.objects.length > 0) {
+    return restoredObjects
+  }
+
+  // 変形されたオブジェクトを抽出
+  const transformedObjects = extractTransformedObjects(previous, current.present)
+  if (transformedObjects.objects.length > 0) {
+    return transformedObjects
+  }
 })
 
 // redo操作
@@ -102,7 +118,23 @@ export const redoAtom = atom(null, (get, set) => {
   }
   set(historyAtom, newHistory)
 
-  return next as Konva.Node[]
+  // 削除されたオブジェクトを抽出
+  const deletedObjects = extractDeletedObjects(next, current.present)
+  if (deletedObjects.objects.length > 0) {
+    return deletedObjects
+  }
+
+  // 復元されたオブジェクトを抽出
+  const restoredObjects = extractRestoredObjects(next, current.present)
+  if (restoredObjects.objects.length > 0) {
+    return restoredObjects
+  }
+
+  // 変形されたオブジェクトを抽出
+  const transformedObjects = extractTransformedObjects(next, current.present)
+  if (transformedObjects.objects.length > 0) {
+    return transformedObjects
+  }
 })
 
 // undo可能かどうか
@@ -110,3 +142,44 @@ export const canUndoAtom = atom((get) => get(historyAtom).past.length > 0)
 
 // redo可能かどうか
 export const canRedoAtom = atom((get) => get(historyAtom).future.length > 0)
+
+interface UndoRedoResult {
+  action: 'delete' | 'restore' | 'transform'
+  objects: Drawing[]
+}
+
+// 削除されたオブジェクトを抽出する共通関数
+function extractDeletedObjects(fromState: Konva.Node[], toState: Konva.Node[]): UndoRedoResult {
+  const toIds = new Set(toState.map((node) => node.id()))
+  const deletedObjects = fromState.filter((node) => !toIds.has(node.id()))
+  const objects = deletedObjects.map((node) => node.attrs as Drawing)
+  return { action: 'delete', objects }
+}
+
+// 復元されたオブジェクトを抽出する共通関数
+function extractRestoredObjects(fromState: Konva.Node[], toState: Konva.Node[]): UndoRedoResult {
+  const fromIds = new Set(fromState.map((node) => node.id()))
+  const restoredObjects = toState.filter((node) => !fromIds.has(node.id()))
+  const objects = restoredObjects.map((node) => node.attrs as Drawing)
+  return { action: 'restore', objects }
+}
+
+// 変形されたオブジェクトを抽出する共通関数
+function extractTransformedObjects(fromState: Konva.Node[], toState: Konva.Node[]): UndoRedoResult {
+  const toNodesMap = new Map(toState.map((node) => [node.id(), node]))
+  const transformedObjects = fromState.filter((fromNode) => {
+    const toNode = toNodesMap.get(fromNode.id())
+    if (!toNode) return false
+
+    // プロパティを比較して変更があったかチェック
+    return (
+      fromNode.x() !== toNode.x() ||
+      fromNode.y() !== toNode.y() ||
+      fromNode.scaleX() !== toNode.scaleX() ||
+      fromNode.scaleY() !== toNode.scaleY() ||
+      fromNode.rotation() !== toNode.rotation()
+    )
+  })
+  const objects = transformedObjects.map((node) => node.attrs as Drawing)
+  return { action: 'transform', objects }
+}
