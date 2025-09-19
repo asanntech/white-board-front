@@ -1,10 +1,7 @@
 import { atom } from 'jotai'
 import Konva from 'konva'
 
-// キャンバスの準備ができたかどうかを管理
-export const isReadyCanvasAtom = atom<boolean>(false)
-
-// 履歴管理
+// 描画オブジェクトの履歴管理
 const MAX_HISTORY_SIZE = 30
 
 // 履歴の状態を管理するatom
