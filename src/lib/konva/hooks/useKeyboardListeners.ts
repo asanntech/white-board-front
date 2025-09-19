@@ -3,7 +3,6 @@ import { useSetAtom, useAtomValue } from 'jotai'
 import Konva from 'konva'
 import { keyPressStateAtom, undoAtom, redoAtom, canUndoAtom, canRedoAtom, removeLineAtom } from '../atoms'
 import { useSocketManager } from './useSocketManager'
-import { Drawing } from '../types'
 
 export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer | null>) => {
   const setKeyPressState = useSetAtom(keyPressStateAtom)
@@ -35,13 +34,12 @@ export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer
       if (e.ctrlKey || e.metaKey) {
         if (e.key === 'z' && !e.shiftKey && canUndo) {
           e.preventDefault()
-          const ids = undo()
-          if (ids) emitUndo(ids)
+          const results = undo()
+          if (results) emitUndo(results)
         } else if ((e.key === 'y' || (e.key === 'z' && e.shiftKey)) && canRedo) {
           e.preventDefault()
-          const nodes = redo()
-          const drawings = nodes?.map((node) => node.attrs as Drawing)
-          if (drawings) emitRedo(drawings)
+          const results = redo()
+          if (results) emitRedo(results)
         }
       }
     }
