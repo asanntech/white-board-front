@@ -1,7 +1,7 @@
 import { atom } from 'jotai'
 import { io, Socket } from 'socket.io-client'
 import Konva from 'konva'
-import { pushToHistoryAtom, removeLineAtom, undoAtom, redoAtom } from './historyAtom'
+import { pushToHistoryAtom, removeLineAtom, undoAtom, redoAtom } from './drawingHistoryAtom'
 import { Drawing } from '../types'
 
 type ServerToClientEvents = {
