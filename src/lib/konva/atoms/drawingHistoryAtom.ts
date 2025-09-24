@@ -87,19 +87,19 @@ export const undoAtom = atom(null, (get, set) => {
   set(historyAtom, newHistory)
 
   // 削除されたオブジェクトを抽出
-  const deletedObjects = extractDeletedObjects(previous, current.present)
+  const deletedObjects = extractDeletedObjects(current.present, previous)
   if (deletedObjects.objects.length > 0) {
     return deletedObjects
   }
 
   // 復元されたオブジェクトを抽出
-  const restoredObjects = extractRestoredObjects(previous, current.present)
+  const restoredObjects = extractRestoredObjects(current.present, previous)
   if (restoredObjects.objects.length > 0) {
     return restoredObjects
   }
 
   // 変形されたオブジェクトを抽出
-  const transformedObjects = extractTransformedObjects(previous, current.present)
+  const transformedObjects = extractTransformedObjects(current.present, previous)
   if (transformedObjects.objects.length > 0) {
     return transformedObjects
   }
@@ -119,19 +119,19 @@ export const redoAtom = atom(null, (get, set) => {
   set(historyAtom, newHistory)
 
   // 削除されたオブジェクトを抽出
-  const deletedObjects = extractDeletedObjects(next, current.present)
+  const deletedObjects = extractDeletedObjects(current.present, next)
   if (deletedObjects.objects.length > 0) {
     return deletedObjects
   }
 
   // 復元されたオブジェクトを抽出
-  const restoredObjects = extractRestoredObjects(next, current.present)
+  const restoredObjects = extractRestoredObjects(current.present, next)
   if (restoredObjects.objects.length > 0) {
     return restoredObjects
   }
 
   // 変形されたオブジェクトを抽出
-  const transformedObjects = extractTransformedObjects(next, current.present)
+  const transformedObjects = extractTransformedObjects(current.present, next)
   if (transformedObjects.objects.length > 0) {
     return transformedObjects
   }
@@ -166,9 +166,14 @@ function extractRestoredObjects(fromState: Konva.Node[], toState: Konva.Node[]):
 
 // 変形されたオブジェクトを抽出する共通関数
 function extractTransformedObjects(fromState: Konva.Node[], toState: Konva.Node[]): UndoRedoResult {
-  const toNodesMap = new Map(toState.map((node) => [node.id(), node]))
+  // 同じIDが存在する場合、最も新しい（配列の後ろにある）オブジェクトのみを保持
+  const uniqueToNodesMap = new Map<string, Konva.Node>()
+  toState.forEach((node) => {
+    uniqueToNodesMap.set(node.id(), node)
+  })
+
   const transformedObjects = fromState.filter((fromNode) => {
-    const toNode = toNodesMap.get(fromNode.id())
+    const toNode = uniqueToNodesMap.get(fromNode.id())
     if (!toNode) return false
 
     // プロパティを比較して変更があったかチェック
@@ -180,6 +185,9 @@ function extractTransformedObjects(fromState: Konva.Node[], toState: Konva.Node[
       fromNode.rotation() !== toNode.rotation()
     )
   })
-  const objects = transformedObjects.map((node) => node.attrs as Drawing)
+
+  // 変形されたオブジェクトのIDを取得し、toStateから最も新しいオブジェクトを取得
+  const transformedIds = transformedObjects.map((node) => node.id())
+  const objects = transformedIds.map((id) => uniqueToNodesMap.get(id)!.attrs as Drawing)
   return { action: 'transform', objects }
 }
