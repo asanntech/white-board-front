@@ -13,6 +13,9 @@ export type Drawing = {
   scaleY?: number
   skewX?: number
   skewY?: number
+  lineCap?: string
+  lineJoin?: string
+  opacity?: number
 }
 
 export type UndoRedoResult = {
