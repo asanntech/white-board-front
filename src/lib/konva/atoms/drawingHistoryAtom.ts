@@ -37,7 +37,7 @@ export const pushToHistoryAtom = atom(null, (get, set, newState: Konva.Node | Ko
   const newPresent = Array.isArray(newState) ? newState : [newState]
 
   const newHistory = {
-    past: [...current.past, current.present].slice(-MAX_HISTORY_SIZE),
+    past: current.present.length > 0 ? [...current.past, current.present].slice(-MAX_HISTORY_SIZE) : current.past,
     present: [...current.present, ...newPresent],
     future: [], // 新しい状態を追加したら、futureはクリア
   }
@@ -66,7 +66,7 @@ export const removeLineAtom = atom(null, (get, set, id: string | string[]) => {
   const newPresent = current.present.filter((node) => !idsToRemove.includes(node.id()))
 
   const newHistory = {
-    past: [...current.past, current.present],
+    past: current.present.length > 0 ? [...current.past, current.present] : current.past,
     present: newPresent,
     future: [],
   }
