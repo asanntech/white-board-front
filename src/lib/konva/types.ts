@@ -1,3 +1,5 @@
+import { LineCap, LineJoin } from 'konva/lib/Shape'
+
 export type Tool = 'select' | 'pen' | 'redPen' | 'marker' | 'eraser'
 
 export type Drawing = {
@@ -13,8 +15,8 @@ export type Drawing = {
   scaleY?: number
   skewX?: number
   skewY?: number
-  lineCap?: string
-  lineJoin?: string
+  lineCap?: LineCap
+  lineJoin?: LineJoin
   opacity?: number
 }
 
