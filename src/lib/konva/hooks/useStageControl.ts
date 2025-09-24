@@ -131,8 +131,6 @@ export const useStageControl = () => {
   // 変形ツールに伴うノードの変更を履歴に追加
   const pushTransformToHistory = useCallback(
     (e: Konva.KonvaEventObject<Event>) => {
-      let drawings: Drawing[] = []
-
       if (!(e.currentTarget instanceof Konva.Transformer)) {
         console.error('not transformer')
         return
@@ -141,7 +139,7 @@ export const useStageControl = () => {
       const newNodes = e.currentTarget.nodes().map((n) => n.clone()) as Konva.Line[]
       pushToHistory(newNodes)
 
-      drawings = newNodes.map((n) => n.attrs as Drawing)
+      const drawings = newNodes.map((n) => n.attrs as Drawing)
       emitTransform(drawings)
     },
     [emitTransform, pushToHistory]
