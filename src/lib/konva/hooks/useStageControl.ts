@@ -68,10 +68,12 @@ export const useStageControl = () => {
       if (tool === 'select') {
         startSelection(e)
       } else {
-        startDrawing(e)
+        const newLineNode = startDrawing(e)
+        const drawings = newLineNode ? [newLineNode.attrs as Drawing] : []
+        if (newLineNode && isPenMode) emitDrawing(drawings)
       }
     },
-    [tool, startDrawing, startSelection]
+    [tool, isPenMode, startDrawing, startSelection, emitDrawing]
   )
 
   const handlePointerMove = useCallback(
@@ -103,9 +105,9 @@ export const useStageControl = () => {
     } else {
       const newLineNode = finishDrawing()
       const drawings = newLineNode ? [newLineNode.attrs as Drawing] : []
-      if (newLineNode && isPenMode) emitDrawing(drawings)
+      if (newLineNode && isPenMode) emitTransform(drawings)
     }
-  }, [tool, emitDrawing, isPenMode, finishDrawing, endSelection, getIntersectingLines])
+  }, [tool, emitTransform, isPenMode, finishDrawing, endSelection, getIntersectingLines])
 
   const changeTransformedState = useCallback(() => {
     transformedStateRef.current = true

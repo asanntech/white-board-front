@@ -43,6 +43,8 @@ export const useDrawing = () => {
 
       const newLineNode = createLineObject(drawingType, [pointerPos.x, pointerPos.y])
       setTempLineNode(newLineNode)
+
+      return newLineNode
     },
     [isSpacePressed, drawingType, getPointerPosition]
   )
