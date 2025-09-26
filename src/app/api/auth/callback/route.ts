@@ -18,11 +18,11 @@ export async function GET(request: Request) {
 
   const cookieStore = await cookies()
 
-  cookieStore.set(TOKEN_COOKIE_KEYS.ACCESS_TOKEN, res.accessToken, cookieOptions)
-  cookieStore.set(TOKEN_COOKIE_KEYS.ID_TOKEN, res.idToken, cookieOptions)
-  cookieStore.set(TOKEN_COOKIE_KEYS.REFRESH_TOKEN, res.refreshToken, cookieOptions)
+  cookieStore.set(TOKEN_COOKIE_KEYS.ACCESS_TOKEN, res.accessToken.getValue(), cookieOptions)
+  cookieStore.set(TOKEN_COOKIE_KEYS.ID_TOKEN, res.idToken.getValue(), cookieOptions)
+  cookieStore.set(TOKEN_COOKIE_KEYS.REFRESH_TOKEN, res.refreshToken.getValue(), cookieOptions)
 
-  const expired = addSeconds(new Date(), res.expiresIn).getTime().toString()
+  const expired = addSeconds(new Date(), res.expiresIn.getValue()).getTime().toString()
   cookieStore.set(TOKEN_COOKIE_KEYS.EXPIRED, expired, cookieOptions)
 
   return Response.redirect('http://localhost:3000/room', 301)
