@@ -1,4 +1,17 @@
-## はじめに
+## セットアップ
+
+1\. pnpm コマンドの実行
+
+```bash
+$ pnpm install
+```
+
+2\. .env ファイルをトップディレクトに配置
+
+管理者に問い合わせて取得する。<br/>
+.env ファイルには Cognito の認証に必要なパラメーターが記載されている。
+
+## アプリ起動
 
 ```bash
 pnpm dev
@@ -17,14 +30,15 @@ pnpm dev
 
 - hooks /
 
-##### ドメイン・インフラストラクチャ層
+##### ドメイン・インフラ層
 
 - features /
   - auth /（ドメインの境界）
-    - domain/（ドメイン層）
-      - [...].entity.ts（ビジネスルールや業務制約をカプセル化）
-      - [...].repository.ts（データアクセスの抽象インターフェース）
-    - api /（インフラストラクチャ層）
+    - domain /（ドメイン層）
+      - [...].entity.ts（状態やビジネスルールをカプセル化）
+      - auth-[...].ts (値に関する業務制約を実装。ValueObject に該当。)
+      - [...].repository.ts（データアクセスの抽象インターフェース。実装はインフラ層。）
+    - api /（インフラ層）
   - use...Query.ts（react-query）
 
 ## エラーハンドリング
@@ -95,6 +109,105 @@ sequenceDiagram
 
 ##### その他のセキュリティ対策
 
-- アクセストークンは 15 分で期限切れ、リフレッシュトークンで自動更新
+- アクセストークンは 30 日で期限切れ、リフレッシュトークンで自動更新
 - 本番環境では HTTPS 通信を強制し、通信の暗号化を確保
 - AWS Cognito による認証基盤の活用で、セキュリティベストプラクティスを継承
+
+## ホワイトボード機能 (src/lib/konva)
+
+ホワイトボード機能は、リアルタイム協調描画を実現するための技術サブドメインとして設計されています。
+
+### アーキテクチャ概要
+
+```
+src/lib/konva/
+├── atoms/              # 状態管理 (Jotai)
+│   ├── canvasAtom.ts           # キャンバス状態
+│   ├── drawingHistoryAtom.ts   # 描画履歴管理
+│   ├── keyboardAtom.ts         # キーボード状態
+│   ├── socketAtom.ts           # Socket接続状態
+│   └── toolAtom.ts            # 描画ツール状態
+├── components/          # UI コンポーネント
+│   ├── GraphPaperLayer.tsx     # 方眼紙レイヤー
+│   ├── SocketProvider.tsx     # Socket接続プロバイダー
+│   └── Toolbar.tsx            # 描画ツールバー
+├── hooks/               # ビジネスロジック
+│   ├── useCanvasCoordinates.ts # 座標変換
+│   ├── useDrawing.ts           # 描画ロジック
+│   ├── useKeyboardListeners.ts # キーボードイベント
+│   ├── useScaleAtPointer.ts   # ズーム機能
+│   ├── useSelectionRange.ts   # 選択範囲管理
+│   ├── useSocketManager.ts    # Socket通信管理
+│   ├── useStageControl.ts     # ステージ制御
+│   └── useViewportSize.ts     # ビューポート管理
+├── constants.ts        # 定数定義
+├── types.ts           # 型定義
+└── WhiteBoard.tsx     # メインコンポーネント
+```
+
+### 主要機能
+
+#### 描画機能
+
+- **ペンツール**: 黒・赤ペン、マーカーによる描画
+- **消しゴム**: 描画内容の削除
+- **選択ツール**: 描画オブジェクトの選択・変形
+
+#### 協調機能
+
+- **リアルタイム同期**: Socket 通信による描画の同期
+- **履歴管理**: Undo/Redo 機能
+- **ルーム管理**: 複数ユーザーでの協調作業
+
+#### 操作機能
+
+- **ズーム**: マウスホイールによる拡大・縮小
+- **パン**: Space キー + ドラッグによる移動
+- **選択範囲**: 矩形選択による複数オブジェクトの選択
+
+### 技術スタック
+
+- **Konva.js**: Canvas 描画ライブラリ
+- **Jotai**: 状態管理
+- **Socket.io**: リアルタイム通信
+- **DynamoDB**: 描画データの永続化
+- **React Hooks**: ビジネスロジックの分離
+
+### リアルタイム通信フロー
+
+```mermaid
+sequenceDiagram
+    participant U1 as ユーザーA
+    participant WA as ホワイトボードA
+    participant S as Socket Server <br>（Nest.js）
+    participant DB as DynamoDB
+    participant WB as ホワイトボードB
+    participant U2 as ユーザーB
+
+    Note over U1,U2: 描画の同期と永続化
+    U1->>WA: 描画操作
+    WA->>WA: ローカル状態更新
+    WA->>S: 描画データ送信 (drawing/transform/remove)
+    S->>DB: 描画データをDynamoDBに保存
+    S->>WB: 描画データ配信
+    WB->>WB: 状態更新
+    WB->>U2: UI更新
+
+    Note over U1,U2: ルーム参加時のデータ取得
+    U2->>WB: ルーム参加
+    WB->>S: ルーム参加要求 (join)
+    S->>DB: ルームデータ取得
+    DB->>S: 既存の描画データ返却
+    S->>WB: ルームデータ配信 (roomData)
+    WB->>WB: 既存描画の復元
+    WB->>U2: UI更新
+
+    Note over U1,U2: Undo/Redo操作の同期
+    U1->>WA: Undo/Redo操作
+    WA->>WA: ローカル履歴更新
+    WA->>S: Undo/Redoデータ送信
+    S->>DB: 履歴データをDynamoDBに保存
+    S->>WB: Undo/Redoデータ配信
+    WB->>WB: 履歴状態更新
+    WB->>U2: UI更新
+```
