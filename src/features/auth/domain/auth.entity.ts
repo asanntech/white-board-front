@@ -1,3 +1,6 @@
+import { AuthToken } from './auth-token'
+import { AuthExpiration } from './auth-expiration'
+
 interface AuthParams {
   accessToken: string
   idToken: string
@@ -6,15 +9,15 @@ interface AuthParams {
 }
 
 export class AuthEntity {
-  public readonly accessToken: string
-  public readonly idToken: string
-  public readonly refreshToken: string
-  public readonly expiresIn: number
+  public readonly accessToken: AuthToken
+  public readonly idToken: AuthToken
+  public readonly refreshToken: AuthToken
+  public readonly expiresIn: AuthExpiration
 
   constructor(params: AuthParams) {
-    this.accessToken = params.accessToken
-    this.idToken = params.idToken
-    this.refreshToken = params.refreshToken
-    this.expiresIn = params.expiresIn
+    this.accessToken = new AuthToken(params.accessToken)
+    this.idToken = new AuthToken(params.idToken)
+    this.refreshToken = new AuthToken(params.refreshToken)
+    this.expiresIn = new AuthExpiration(params.expiresIn)
   }
 }
