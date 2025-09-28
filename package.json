@@ -10,15 +10,16 @@
     "generate-api": "openapi --input ./src/lib/open-api/open-api.json --output ./src/lib/open-api/api-client --name ApiClient --useOptions --useUnionTypes"
   },
   "dependencies": {
+    "@sentry/nextjs": "^10.14.0",
     "@tanstack/react-query": "^5.84.2",
     "canvas": "^3.2.0",
     "date-fns": "^4.1.0",
     "immer": "^10.1.3",
     "jotai": "^2.13.1",
     "konva": "^9.3.22",
-    "next": "15.3.5",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
+    "next": "^15.5.4",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
     "react-error-boundary": "^6.0.0",
     "react-konva": "^19.0.7",
     "socket.io-client": "^4.8.1"
@@ -31,9 +32,11 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "eslint": "^9.31.0",
-    "eslint-config-next": "15.3.5",
+    "eslint-config-next": "^15.5.4",
     "eslint-plugin-react-hooks": "^5.2.0",
+    "import-in-the-middle": "^1.14.4",
     "openapi-typescript-codegen": "^0.29.0",
+    "require-in-the-middle": "^7.5.2",
     "tailwindcss": "^4.1.11",
     "typescript": "^5.8.3"
   }
