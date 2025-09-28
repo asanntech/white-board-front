@@ -1,9 +1,14 @@
 import { FallbackProps } from 'react-error-boundary'
+import * as Sentry from '@sentry/nextjs'
 import { signInUrl } from '@/shared/constants'
 import { ErrorPage } from './ErrorPage'
 import { BackHomeButton } from '@/components/button'
 
 export const ErrorFallback = ({ error }: FallbackProps) => {
+  if (process.env.NODE_ENV === 'production') {
+    Sentry.captureException(error)
+  }
+
   switch (error.status) {
     case 401:
       return <AuthError />
