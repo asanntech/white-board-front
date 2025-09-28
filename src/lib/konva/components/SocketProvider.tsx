@@ -28,9 +28,7 @@ export const SocketProvider = ({ children, roomId }: { children: React.ReactNode
     throw new Error(socketError)
   }
 
-  if (!isConnected) {
-    return <p>接続中...</p>
-  }
+  if (!isConnected) return <></>
 
   return <>{children}</>
 }

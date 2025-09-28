@@ -8,8 +8,10 @@ import { useAuthSession } from '@/features/auth'
 import { ErrorBoundary } from 'react-error-boundary'
 import { ErrorFallback } from '@/components/error'
 import { MainMenu } from '@/components/menu'
+import { Loading } from '@/components/loading'
 import { signInUrl } from '@/shared/constants'
 import { queryClient } from '@/lib/react-query'
+import { useMinLoadingTime } from '@/hooks'
 
 const WhiteBoard = dynamic(() => import('@/lib/konva').then((mod) => mod.WhiteBoard), {
   ssr: false,
@@ -27,18 +29,19 @@ export default function Home() {
 
 const Contents = () => {
   const router = useRouter()
+  const isMinTimeElapsed = useMinLoadingTime()
 
   const { data: authData, isLoading: isAuthLoading } = useAuthSession()
 
   useEffect(() => {
-    if (!isAuthLoading && authData?.hasToken) {
+    if (!isAuthLoading && authData?.hasToken && isMinTimeElapsed) {
       router.replace(`/room/${authData.roomId}`)
     }
-  }, [router, authData, isAuthLoading])
+  }, [router, authData, isAuthLoading, isMinTimeElapsed])
 
   const [selectedFreeTrial, setSelectedFreeTrial] = useState(false)
 
-  if (isAuthLoading || authData?.hasToken) return <p>Loading...</p>
+  if (isAuthLoading || authData?.hasToken || !isMinTimeElapsed) return <Loading />
 
   return (
     <div className="relative">
