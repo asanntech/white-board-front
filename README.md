@@ -46,6 +46,8 @@ pnpm dev
 UI のレンダリング、外部連携（API）等のエラーは ErrorBoundary で一括管理。<br>
 ErrorBoundary の実装は [react-error-boundary](https://www.npmjs.com/package/react-error-boundary) を使用する。
 
+レンダリング以外の予期せぬエラー（サーバーサイドエラー、ビルド時エラー等）が発生した場合は、`global-error.tsx` で処理される。
+
 ## 認証基盤
 
 Cognito を使用して、トークンの管理方法は JWT 認証を採用。<br>
