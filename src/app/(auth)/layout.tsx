@@ -6,7 +6,9 @@ import { useRouter } from 'next/navigation'
 import { ErrorBoundary } from 'react-error-boundary'
 import { useAuthSession } from '@/features/auth'
 import { ErrorFallback } from '@/components/error'
+import { Loading } from '@/components/loading'
 import { queryClient } from '@/lib/react-query'
+import { useMinLoadingTime } from '@/hooks'
 
 interface Props {
   children: React.ReactNode
@@ -24,11 +26,12 @@ export default function AuthLayout({ children }: Props) {
 
 const Contents = ({ children }: Props) => {
   const router = useRouter()
+  const isMinTimeElapsed = useMinLoadingTime()
 
   const { data: authData, isLoading: isAuthLoading } = useAuthSession()
 
   useEffect(() => {
-    if (isAuthLoading) return
+    if (isAuthLoading || !isMinTimeElapsed) return
 
     // トークンが存在しない場合はリダイレクト
     if (!authData?.hasToken) {
@@ -36,9 +39,9 @@ const Contents = ({ children }: Props) => {
     } else {
       router.replace(`/room/${authData.roomId}`)
     }
-  }, [isAuthLoading, router, authData])
+  }, [isAuthLoading, router, authData, isMinTimeElapsed])
 
-  if (isAuthLoading || !authData?.hasToken) return <p>Loading...</p>
+  if (isAuthLoading || !authData?.hasToken || !isMinTimeElapsed) return <Loading />
 
   return children
 }
