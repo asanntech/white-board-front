@@ -1,10 +1,9 @@
-import { signInUrl } from '@/shared/constants'
-
 interface MainMenuProps {
+  signInUrl: string
   onClickFreeTrial: () => void
 }
 
-export const MainMenu = ({ onClickFreeTrial }: MainMenuProps) => {
+export const MainMenu = ({ signInUrl, onClickFreeTrial }: MainMenuProps) => {
   return (
     <section className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 max-w-120 w-11/12 bg-white text-center rounded-md p-6 shadow-lg">
       <h1 className="text-4xl font-bold text-emerald-500">White Board</h1>
