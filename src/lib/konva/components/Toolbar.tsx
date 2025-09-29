@@ -3,6 +3,7 @@ import { toolAtom, canUndoAtom, canRedoAtom, undoAtom, redoAtom } from '../atoms
 import { SelectIcon, PenIcon, UndoIcon, RedoIcon, BrushIcon, EraserIcon, RedPenIcon } from '@/components/icons'
 import { useSocketManager } from '../hooks/useSocketManager'
 import { Tool } from '../types'
+import { IconButton } from '@/components/button'
 
 export const Toolbar = () => {
   const [tool, setTool] = useAtom(toolAtom)
@@ -42,40 +43,16 @@ export const Toolbar = () => {
   ]
 
   return (
-    <div className="flex flex-col gap-2 bg-white rounded-md p-2 shadow-md">
+    <div className="flex gap-2 bg-white rounded-md p-2 shadow-md">
       <IconButton icon={<SelectIcon />} active={tool === 'select'} onClick={() => setTool('select')} />
-      <div className="w-full h-[1px] bg-gray-200" />
+      <div className="w-[1px] h-auto my-[-8px] bg-gray-200" />
       {tools.map((t) => (
         <IconButton key={t.id} icon={t.icon} active={t.id === tool} onClick={() => setTool(t.id)} />
       ))}
-      <div className="w-full h-[1px] bg-gray-200" />
+      <div className="w-[1px] h-auto my-[-8px] bg-gray-200" />
       {actions.map((action) => (
         <IconButton key={action.id} icon={action.icon} onClick={action.onClick} disabled={action.disabled} />
       ))}
     </div>
-  )
-}
-
-const IconButton = ({
-  icon,
-  active,
-  onClick,
-  disabled = false,
-}: {
-  icon: React.ReactNode
-  active?: boolean
-  onClick?: () => void
-  disabled?: boolean
-}) => {
-  return (
-    <button
-      className={`rounded-md p-2 ${active ? 'bg-neutral-100' : ''} ${
-        disabled ? 'opacity-30 cursor-not-allowed' : 'cursor-pointer hover:bg-neutral-100'
-      }`}
-      onClick={onClick}
-      disabled={disabled}
-    >
-      {icon}
-    </button>
   )
 }
