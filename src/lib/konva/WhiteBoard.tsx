@@ -32,7 +32,7 @@ export const WhiteBoard = () => {
 
   return (
     <div>
-      <div className="fixed z-1 top-1/2 left-5 -translate-y-1/2">
+      <div className="fixed z-1 left-1/2 bottom-5 -translate-x-1/2">
         <Toolbar />
       </div>
       <Stage
