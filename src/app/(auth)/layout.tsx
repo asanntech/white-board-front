@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { QueryClientProvider } from '@tanstack/react-query'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams, useParams } from 'next/navigation'
 import { ErrorBoundary } from 'react-error-boundary'
 import { useAuthSession } from '@/features/auth'
 import { ErrorFallback } from '@/components/error'
@@ -26,6 +26,8 @@ export default function AuthLayout({ children }: Props) {
 
 const Contents = ({ children }: Props) => {
   const router = useRouter()
+  const params = useParams()
+  const searchParams = useSearchParams()
   const isMinTimeElapsed = useMinLoadingTime()
 
   const { data: authData, isLoading: isAuthLoading } = useAuthSession()
@@ -35,11 +37,21 @@ const Contents = ({ children }: Props) => {
 
     // トークンが存在しない場合はリダイレクト
     if (!authData?.hasToken) {
-      router.replace('/')
-    } else {
-      router.replace(`/room/${authData.roomId}`)
+      // 未ログインで[id]が存在する場合（共有ページ）は、ディープリンクでリダイレクト
+      const href = params.id ? `/?next=/room/${params.id}` : '/'
+      router.replace(href)
+      return
     }
-  }, [isAuthLoading, router, authData, isMinTimeElapsed])
+
+    // [id]が存在する場合はそのroomにリダイレクト
+    if (params.id) {
+      router.replace(`/room/${params.id}`)
+      return
+    }
+
+    // 自分のroomにリダイレクト
+    router.replace(`/room/${authData.roomId}`)
+  }, [isAuthLoading, router, authData, isMinTimeElapsed, searchParams, params.id])
 
   if (isAuthLoading || !authData?.hasToken || !isMinTimeElapsed) return <Loading />
 

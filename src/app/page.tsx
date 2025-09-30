@@ -1,14 +1,16 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
 import dynamic from 'next/dynamic'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { useAuthSession } from '@/features/auth'
 import { ErrorBoundary } from 'react-error-boundary'
 import { ErrorFallback } from '@/components/error'
 import { MainMenu } from '@/components/menu'
 import { Loading } from '@/components/loading'
+import { IconButton } from '@/components/button'
+import { SignInIcon } from '@/components/icons'
 import { signInUrl } from '@/shared/constants'
 import { queryClient } from '@/lib/react-query'
 import { useMinLoadingTime } from '@/hooks'
@@ -29,10 +31,12 @@ export default function Home() {
 
 const Contents = () => {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const isMinTimeElapsed = useMinLoadingTime()
 
   const { data: authData, isLoading: isAuthLoading } = useAuthSession()
 
+  // ログインしていれば自分のroomにリダイレクト
   useEffect(() => {
     if (!isAuthLoading && authData?.hasToken && isMinTimeElapsed) {
       router.replace(`/room/${authData.roomId}`)
@@ -41,24 +45,31 @@ const Contents = () => {
 
   const [selectedFreeTrial, setSelectedFreeTrial] = useState(false)
 
+  // リダイレクト先がクエリパラメーターで指定されていればそのページにリダイレクト
+  const signInUrlWithRedirectPath = useMemo(() => {
+    const next = searchParams.get('next')
+    return signInUrl + `${next ? `&state=${next}` : ''}`
+  }, [searchParams])
+
+  const signIn = useCallback(() => {
+    window.location.href = signInUrlWithRedirectPath
+  }, [signInUrlWithRedirectPath])
+
   if (isAuthLoading || authData?.hasToken || !isMinTimeElapsed) return <Loading />
 
   return (
     <div className="relative">
       {!selectedFreeTrial && (
         <div className="absolute top-0 left-0 w-dvw h-dvh bg-stone-900/50 z-10">
-          <MainMenu onClickFreeTrial={() => setSelectedFreeTrial(true)} />
+          <MainMenu signInUrl={signInUrlWithRedirectPath} onClickFreeTrial={() => setSelectedFreeTrial(true)} />
+        </div>
+      )}
+      {selectedFreeTrial && (
+        <div className="fixed z-1 right-5 top-5 flex gap-2 bg-white rounded-md p-1 shadow-md">
+          <IconButton icon={<SignInIcon />} onClick={signIn} />
         </div>
       )}
       <WhiteBoard />
-      {selectedFreeTrial && (
-        <a
-          href={signInUrl}
-          className="absolute bottom-5 left-1/2 -translate-x-1/2 bg-emerald-500 w-30 px-3 py-1 shadow-2xl rounded-2xl text-white text-center font-bold cursor-pointer hover:opacity-70"
-        >
-          Sign In
-        </a>
-      )}
     </div>
   )
 }

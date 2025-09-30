@@ -25,5 +25,12 @@ export async function GET(request: Request) {
   const expired = addSeconds(new Date(), res.expiresIn.getValue()).getTime().toString()
   cookieStore.set(TOKEN_COOKIE_KEYS.EXPIRED, expired, cookieOptions)
 
-  return Response.redirect('http://localhost:3000/room', 301)
+  // リダイレクト先が指定されていればそのページにリダイレクト
+  // オープンリダイレクト防止のため相対パスのみ許可
+  const next = searchParams.get('state')
+  if (next?.startsWith('/') && !next?.startsWith('//')) {
+    return Response.redirect(`${process.env.NEXT_PUBLIC_WHITE_BOARD_URI}${next}`, 302)
+  }
+
+  return Response.redirect(`${process.env.NEXT_PUBLIC_WHITE_BOARD_URI}/room`, 302)
 }
