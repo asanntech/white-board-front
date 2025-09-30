@@ -9,4 +9,4 @@ export const signInUrl =
 export const signOutUrl =
   `${process.env.NEXT_PUBLIC_COGNITO_DOMAIN}/logout` +
   `?client_id=${process.env.NEXT_PUBLIC_COGNITO_CLIENT_ID}` +
-  `&logout_uri=${process.env.NEXT_PUBLIC_LOGOUT_REDIRECT_URI}`
+  `&logout_uri=${process.env.NEXT_PUBLIC_WHITE_BOARD_URI}`
