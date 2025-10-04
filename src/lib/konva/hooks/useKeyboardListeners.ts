@@ -3,6 +3,7 @@ import { useSetAtom, useAtomValue } from 'jotai'
 import Konva from 'konva'
 import { keyPressStateAtom, undoAtom, redoAtom, canUndoAtom, canRedoAtom, removeLineAtom } from '../atoms'
 import { useSocketManager } from './useSocketManager'
+import { Drawing } from '../types'
 
 export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer | null>) => {
   const setKeyPressState = useSetAtom(keyPressStateAtom)
@@ -23,11 +24,12 @@ export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer
         const transformer = transformerRef.current
         if (!transformer || transformer.nodes().length === 0) return
 
-        const selectedNodeIds = transformer.nodes().map((node: Konva.Node) => node.id())
+        const selectedNodes = transformer.nodes().map((node: Konva.Node) => node.attrs as Drawing)
+        const selectedNodeIds = selectedNodes.map((node) => node.id)
+
         removeLine(selectedNodeIds)
         transformer.nodes([]) // 選択をクリア
-
-        emitRemove(selectedNodeIds)
+        emitRemove(selectedNodes)
       }
 
       // Undo/Redo ショートカット
