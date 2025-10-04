@@ -27,6 +27,14 @@ export const useSocketManager = () => {
     [socket, roomId]
   )
 
+  const emitDrawingEnd = useCallback(
+    (drawing: Drawing) => {
+      if (!socket || !roomId) return
+      socket.emit('drawingEnd', { roomId, drawing })
+    },
+    [socket, roomId]
+  )
+
   const emitTransform = useCallback(
     (drawings: Drawing[]) => {
       if (!socket || !roomId) return
@@ -36,25 +44,25 @@ export const useSocketManager = () => {
   )
 
   const emitRemove = useCallback(
-    (ids: string[]) => {
+    (drawings: Drawing[]) => {
       if (!socket || !roomId) return
-      socket.emit('remove', { roomId, ids })
+      socket.emit('remove', { roomId, drawings })
     },
     [socket, roomId]
   )
 
   const emitUndo = useCallback(
-    (undoRedoResult: UndoRedoResult) => {
+    (undoResult: UndoRedoResult) => {
       if (!socket || !roomId) return
-      socket.emit('undo', { roomId, undoRedoResult })
+      socket.emit('undo', { roomId, undoResult })
     },
     [socket, roomId]
   )
 
   const emitRedo = useCallback(
-    (undoRedoResult: UndoRedoResult) => {
+    (redoResult: UndoRedoResult) => {
       if (!socket || !roomId) return
-      socket.emit('redo', { roomId, undoRedoResult })
+      socket.emit('redo', { roomId, redoResult })
     },
     [socket, roomId]
   )
@@ -64,6 +72,7 @@ export const useSocketManager = () => {
     isConnected,
     error,
     emitDrawing,
+    emitDrawingEnd,
     emitTransform,
     emitRemove,
     emitUndo,
