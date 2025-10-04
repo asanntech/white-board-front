@@ -27,7 +27,7 @@ export const useStageControl = () => {
   const { selectionRectRef, selectionRectangle, displaySelectionRect, startSelection, updateSelection, endSelection } =
     useSelectionRange()
 
-  const { emitRemove, emitDrawing, emitTransform } = useSocketManager()
+  const { emitRemove, emitDrawing, emitTransform, emitDrawingEnd } = useSocketManager()
 
   // ドラッグ範囲をcanvas領域に制限する
   const restrictDragWithinCanvas = useCallback(
@@ -104,10 +104,10 @@ export const useStageControl = () => {
       transformer.nodes(lines)
     } else {
       const newLineNode = finishDrawing()
-      const drawings = newLineNode ? [newLineNode.attrs as Drawing] : []
-      if (newLineNode && isPenMode) emitTransform(drawings)
+      const drawings = newLineNode?.attrs as Drawing | undefined
+      if (newLineNode && isPenMode && drawings) emitDrawingEnd(drawings)
     }
-  }, [tool, emitTransform, isPenMode, finishDrawing, endSelection, getIntersectingLines])
+  }, [tool, emitDrawingEnd, isPenMode, finishDrawing, endSelection, getIntersectingLines])
 
   const changeTransformedState = useCallback(() => {
     transformedStateRef.current = true
@@ -120,7 +120,8 @@ export const useStageControl = () => {
       if (tool === 'eraser' && isDrawing) {
         const id = e.target.attrs.id
         removeLine(id)
-        emitRemove([id])
+        const drawings = [e.target.attrs as Drawing]
+        emitRemove(drawings)
       }
     },
     [tool, isDrawing, emitRemove, removeLine]
