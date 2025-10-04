@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, Suspense } from 'react'
 import { QueryClientProvider } from '@tanstack/react-query'
 import { useRouter, useSearchParams, useParams } from 'next/navigation'
 import { ErrorBoundary } from 'react-error-boundary'
@@ -18,7 +18,9 @@ export default function AuthLayout({ children }: Props) {
   return (
     <QueryClientProvider client={queryClient}>
       <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <Contents>{children}</Contents>
+        <Suspense fallback={<Loading />}>
+          <Contents>{children}</Contents>
+        </Suspense>
       </ErrorBoundary>
     </QueryClientProvider>
   )

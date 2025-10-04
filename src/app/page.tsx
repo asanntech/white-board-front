@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useMemo, useCallback, useEffect } from 'react'
+import { useState, useMemo, useCallback, useEffect, Suspense } from 'react'
 import dynamic from 'next/dynamic'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { QueryClientProvider } from '@tanstack/react-query'
@@ -23,7 +23,9 @@ export default function Home() {
   return (
     <QueryClientProvider client={queryClient}>
       <ErrorBoundary FallbackComponent={ErrorFallback}>
-        <Contents />
+        <Suspense fallback={<Loading />}>
+          <Contents />
+        </Suspense>
       </ErrorBoundary>
     </QueryClientProvider>
   )
