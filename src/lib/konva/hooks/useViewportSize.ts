@@ -13,10 +13,10 @@ let cachedSnapshot: ViewportSize = { width: 0, height: 0 }
 
 function subscribe(callback: () => void) {
   // window の resize
-  window.addEventListener('resize', callback, { passive: true })
+  window.addEventListener('resize', callback)
   // モバイルの URL バー上下で変わる visualViewport も監視
   const vv = window.visualViewport
-  if (vv) vv.addEventListener('resize', callback, { passive: true })
+  if (vv) vv.addEventListener('resize', callback)
 
   return () => {
     window.removeEventListener('resize', callback)
