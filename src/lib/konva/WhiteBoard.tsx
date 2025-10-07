@@ -19,6 +19,7 @@ export const WhiteBoard = () => {
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,
+    handlePointerLeave,
     selectionRectRef,
     visibleSelectionRect,
     displaySelectionRect,
@@ -45,6 +46,7 @@ export const WhiteBoard = () => {
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
+        onPointerLeave={handlePointerLeave}
       >
         <GraphPaperLayer scale={scale} />
         <Layer>

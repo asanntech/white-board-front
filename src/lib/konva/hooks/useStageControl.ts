@@ -127,6 +127,13 @@ export const useStageControl = () => {
     [tool, isDrawing, emitRemove, removeLine]
   )
 
+  // マウスポインターが画面外に出た場合の処理
+  const handlePointerLeave = useCallback(() => {
+    if (selectionRectangle.visible) {
+      endSelection()
+    }
+  }, [selectionRectangle.visible, endSelection])
+
   const pushToHistory = useSetAtom(pushToHistoryAtom)
 
   // 変形ツールに伴うノードの変更を履歴に追加
@@ -197,6 +204,7 @@ export const useStageControl = () => {
     handlePointerDown,
     handlePointerMove,
     handlePointerUp,
+    handlePointerLeave,
     isSpacePressed,
     selectionRectRef,
     displaySelectionRect,
