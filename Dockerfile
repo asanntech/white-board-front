@@ -4,6 +4,10 @@ FROM public.ecr.aws/docker/library/node:22-alpine
 # ビルド引数の定義
 ARG ENVIRONMENT
 
+# Sentryの認証トークン
+ARG SENTRY_AUTH_TOKEN
+ENV SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
+
 # 作業ディレクトリを設定
 WORKDIR /app
 
