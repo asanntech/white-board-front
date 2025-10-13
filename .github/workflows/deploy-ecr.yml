@@ -70,7 +70,7 @@ jobs:
           CP_S3_KEY: ${{ secrets.CP_S3_KEY }}
         run: |
           set -euo pipefail
-          if [ -z "${CP_S3_BUKET:-}" ] || [ -z "${CP_S3_KEY:-}" ]; then
+          if [ -z "${CP_S3_BUCKET:-}" ] || [ -z "${CP_S3_KEY:-}" ]; then
             echo "CP_S3_BUCKET and CP_S3_KEY secrets must be set to upload imagedefinitions.json"
             exit 1
           fi
