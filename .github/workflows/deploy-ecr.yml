@@ -50,3 +50,29 @@ jobs:
         run: |
           echo "Image pushed to: $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
           echo "Also tagged as: $ECR_REGISTRY/$ECR_REPOSITORY:latest"
+
+      - name: Generate imagedefinitions.json for ECS
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          ECR_REPOSITORY: ${{ secrets.ECR_REPOSITORY_NAME }}
+          IMAGE_TAG: ${{ github.event.workflow_run.head_sha }}
+          ECS_CONTAINER_NAME: ${{ secrets.ECS_CONTAINER_NAME }}
+        run: |
+          set -euo pipefail
+          IMAGE_URI="$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          echo "Generating imagedefinitions.json for container '$ECS_CONTAINER_NAME'..."
+          printf '[{"name":"%s","imageUri":"%s"}]\n' "$ECS_CONTAINER_NAME" "$IMAGE_URI" > imagedefinitions.json
+          cat imagedefinitions.json
+
+      - name: Upload imagedefinitions.json to S3 (trigger CodePipeline)
+        env:
+          CP_S3_BUCKET: ${{ secrets.CP_S3_BUCKET }}
+          CP_S3_KEY: ${{ secrets.CP_S3_KEY }}
+        run: |
+          set -euo pipefail
+          if [ -z "${CP_S3_BUKET:-}" ] || [ -z "${CP_S3_KEY:-}" ]; then
+            echo "CP_S3_BUCKET and CP_S3_KEY secrets must be set to upload imagedefinitions.json"
+            exit 1
+          fi
+          echo "Uploading imagedefinitions.json to s3://$CP_S3_BUCKET/$CP_S3_KEY"
+          aws s3 cp imagedefinitions.json "s3://$CP_S3_BUCKET/$CP_S3_KEY"
