@@ -121,31 +121,11 @@ sequenceDiagram
 
 ### アーキテクチャ概要
 
-```
-src/lib/konva/
-├── atoms/              # 状態管理 (Jotai)
-│   ├── canvasAtom.ts           # キャンバス状態
-│   ├── drawingHistoryAtom.ts   # 描画履歴管理
-│   ├── keyboardAtom.ts         # キーボード状態
-│   ├── socketAtom.ts           # Socket接続状態
-│   └── toolAtom.ts            # 描画ツール状態
-├── components/          # UI コンポーネント
-│   ├── GraphPaperLayer.tsx     # 方眼紙レイヤー
-│   ├── SocketProvider.tsx     # Socket接続プロバイダー
-│   └── Toolbar.tsx            # 描画ツールバー
-├── hooks/               # ビジネスロジック
-│   ├── useCanvasCoordinates.ts # 座標変換
-│   ├── useDrawing.ts           # 描画ロジック
-│   ├── useKeyboardListeners.ts # キーボードイベント
-│   ├── useScaleAtPointer.ts   # ズーム機能
-│   ├── useSelectionRange.ts   # 選択範囲管理
-│   ├── useSocketManager.ts    # Socket通信管理
-│   ├── useStageControl.ts     # ステージ制御
-│   └── useViewportSize.ts     # ビューポート管理
-├── constants.ts        # 定数定義
-├── types.ts           # 型定義
-└── WhiteBoard.tsx     # メインコンポーネント
-```
+- **atoms/**: アプリ状態の単位（キャンバス、履歴、選択範囲、キーボード、ソケット、ツールなど）。UI から直接変更せず、フック経由で操作。
+- **hooks/**: ビジネスロジックと副作用の境界。描画処理、座標変換、ズーム/パン、選択範囲、ステージ制御、キーボードリスナー、ソケット通信管理などを提供。
+- **components/**: UI 表現層。方眼紙レイヤー、ツールバー、Provider などのビューを組み合わせ、ロジックは極力 hooks に委譲。
+- **WhiteBoard.tsx**: 構成ルート。Provider/レイヤー/各種フックを組み合わせてホワイトボードを組み立てる。
+- **constants.ts / types.ts**: 共有定数と型定義。描画属性、イベント、メッセージ仕様などの共通表現を集中管理。
 
 ### 主要機能
 
