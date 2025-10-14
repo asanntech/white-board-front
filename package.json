@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -p 3000 -H 0.0.0.0",
     "lint": "next lint",
     "generate-api": "openapi --input ./src/lib/open-api/open-api.json --output ./src/lib/open-api/api-client --name ApiClient --useOptions --useUnionTypes"
   },
