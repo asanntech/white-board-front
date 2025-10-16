@@ -7,6 +7,7 @@ import { useViewportSize } from './useViewportSize'
 import { useDrawing } from './useDrawing'
 import { useSelectionRange } from './useSelectionRange'
 import { useSocketManager } from './useSocketManager'
+import { useMultiTouch } from './useMultiTouch'
 import { spaceKeyPressAtom, toolAtom, pushToHistoryAtom, removeLineAtom, isReadyCanvasAtom } from '../atoms'
 import { canvasSize } from '../constants'
 import { Drawing } from '../types'
@@ -28,6 +29,8 @@ export const useStageControl = () => {
     useSelectionRange()
 
   const { emitRemove, emitDrawing, emitTransform, emitDrawingEnd } = useSocketManager()
+
+  const { clearActivePointers, startPanWithPinchZoom, panWithPinchZoom } = useMultiTouch()
 
   // ドラッグ範囲をcanvas領域に制限する
   const restrictDragWithinCanvas = useCallback(
@@ -76,6 +79,23 @@ export const useStageControl = () => {
     [tool, isPenMode, startDrawing, startSelection, emitDrawing]
   )
 
+  const handleTouchStart = useCallback(
+    (e: KonvaEventObject<TouchEvent>) => {
+      if (!stageRef.current || e.evt.touches.length < 2) return
+      e.evt.preventDefault()
+
+      // 競合回避のため選択/描画を停止
+      if (selectionRectangle.visible) {
+        endSelection()
+      } else {
+        finishDrawing(false)
+      }
+
+      startPanWithPinchZoom(stageRef.current, e.evt.touches)
+    },
+    [startPanWithPinchZoom, finishDrawing, endSelection, selectionRectangle.visible]
+  )
+
   const handlePointerMove = useCallback(
     (e: KonvaEventObject<PointerEvent>) => {
       if (tool === 'select') {
@@ -85,6 +105,15 @@ export const useStageControl = () => {
       }
     },
     [tool, continueDrawing, updateSelection]
+  )
+
+  const handleTouchMove = useCallback(
+    (e: KonvaEventObject<TouchEvent>) => {
+      if (!stageRef.current || e.evt.touches.length < 2) return
+      e.evt.preventDefault()
+      panWithPinchZoom(stageRef.current, e.evt.touches, restrictDragWithinCanvas)
+    },
+    [panWithPinchZoom, restrictDragWithinCanvas]
   )
 
   // 変形ツールを使用しているかどうかを管理
@@ -108,6 +137,15 @@ export const useStageControl = () => {
       if (newLineNode && isPenMode && drawings) emitDrawingEnd(drawings)
     }
   }, [tool, emitDrawingEnd, isPenMode, finishDrawing, endSelection, getIntersectingLines])
+
+  const handleTouchEnd = useCallback(
+    (e: KonvaEventObject<TouchEvent>) => {
+      if (e.evt.touches.length < 2) return
+      e.evt.preventDefault()
+      clearActivePointers()
+    },
+    [clearActivePointers]
+  )
 
   const changeTransformedState = useCallback(() => {
     transformedStateRef.current = true
@@ -133,6 +171,12 @@ export const useStageControl = () => {
       endSelection()
     }
   }, [selectionRectangle.visible, endSelection])
+
+  // Pointer キャンセル時（OSジェスチャ等）
+  const handlePointerCancel = useCallback(() => {
+    clearActivePointers()
+    if (selectionRectangle.visible) endSelection()
+  }, [endSelection, selectionRectangle.visible, clearActivePointers])
 
   const pushToHistory = useSetAtom(pushToHistoryAtom)
 
@@ -205,6 +249,10 @@ export const useStageControl = () => {
     handlePointerMove,
     handlePointerUp,
     handlePointerLeave,
+    handlePointerCancel,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
     isSpacePressed,
     selectionRectRef,
     displaySelectionRect,
