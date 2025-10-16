@@ -11,7 +11,8 @@ export const whiteboardColors = {
 export const lineConfig = {
   pen: {
     stroke: '#333333',
-    strokeWidth: 8,
+    strokeWidth: 4,
+    hitStrokeWidth: 24,
     tension: 0,
     lineCap: 'round' as const,
     lineJoin: 'round' as const,
@@ -19,7 +20,8 @@ export const lineConfig = {
   },
   redPen: {
     stroke: '#fa7d7d',
-    strokeWidth: 8,
+    strokeWidth: 4,
+    hitStrokeWidth: 24,
     tension: 0,
     lineCap: 'round' as const,
     lineJoin: 'round' as const,
@@ -27,7 +29,8 @@ export const lineConfig = {
   },
   marker: {
     stroke: '#90EE90',
-    strokeWidth: 16,
+    strokeWidth: 10,
+    hitStrokeWidth: 28,
     tension: 0.5,
     lineCap: 'round' as const,
     lineJoin: 'round' as const,

@@ -69,18 +69,21 @@ export const useDrawing = () => {
   )
 
   // 描画を終了する
-  const finishDrawing = useCallback(() => {
-    const newLineNode = tempLineNode as Konva.Line
-    if (!newLineNode) return
+  const finishDrawing = useCallback(
+    (isPushToHistory = true) => {
+      const newLineNode = tempLineNode as Konva.Line
+      if (!newLineNode) return
 
-    setTempLineNode(null)
+      setTempLineNode(null)
 
-    if (isPenMode) {
-      pushToHistory(newLineNode)
-    }
+      if (isPenMode && isPushToHistory) {
+        pushToHistory(newLineNode)
+      }
 
-    return newLineNode
-  }, [isPenMode, tempLineNode, pushToHistory])
+      return newLineNode
+    },
+    [isPenMode, tempLineNode, pushToHistory]
+  )
 
   const lineNodes = useMemo(() => {
     return tempLineNode && isPenMode ? [...displayLineNodes, tempLineNode] : displayLineNodes
