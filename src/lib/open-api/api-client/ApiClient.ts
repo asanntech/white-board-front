@@ -6,10 +6,12 @@ import type { BaseHttpRequest } from './core/BaseHttpRequest';
 import type { OpenAPIConfig } from './core/OpenAPI';
 import { FetchHttpRequest } from './core/FetchHttpRequest';
 import { AuthService } from './services/AuthService';
+import { HealthService } from './services/HealthService';
 import { RoomsService } from './services/RoomsService';
 type HttpRequestConstructor = new (config: OpenAPIConfig) => BaseHttpRequest;
 export class ApiClient {
     public readonly auth: AuthService;
+    public readonly health: HealthService;
     public readonly rooms: RoomsService;
     public readonly request: BaseHttpRequest;
     constructor(config?: Partial<OpenAPIConfig>, HttpRequest: HttpRequestConstructor = FetchHttpRequest) {
@@ -25,6 +27,7 @@ export class ApiClient {
             ENCODE_PATH: config?.ENCODE_PATH,
         });
         this.auth = new AuthService(this.request);
+        this.health = new HealthService(this.request);
         this.rooms = new RoomsService(this.request);
     }
 }
