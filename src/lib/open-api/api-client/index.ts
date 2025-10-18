@@ -15,4 +15,5 @@ export type { AuthVerifyResponseDto } from './models/AuthVerifyResponseDto';
 export type { CreateRoomDto } from './models/CreateRoomDto';
 
 export { AuthService } from './services/AuthService';
+export { HealthService } from './services/HealthService';
 export { RoomsService } from './services/RoomsService';
