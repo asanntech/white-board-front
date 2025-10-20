@@ -11,6 +11,7 @@ import { MainMenu } from '@/components/menu'
 import { Loading } from '@/components/loading'
 import { IconButton } from '@/components/button'
 import { SignInIcon } from '@/components/icons'
+import { Toast } from '@/components/toast'
 import { signInUrl } from '@/shared/constants'
 import { queryClient } from '@/lib/react-query'
 import { useMinLoadingTime } from '@/hooks'
@@ -47,7 +48,12 @@ const Contents = () => {
 
   const [selectedFreeTrial, setSelectedFreeTrial] = useState(false)
 
-  // リダイレクト先がクエリパラメーターで指定されていればそのページにリダイレクト
+  // リダイレクト先がで指定されていればトーストを表示
+  const showToast = useMemo(() => {
+    return !!searchParams.get('next')
+  }, [searchParams])
+
+  // リダイレクト先が指定されていればそのページにリダイレクト
   const signInUrlWithRedirectPath = useMemo(() => {
     const next = searchParams.get('next')
     return signInUrl + `${next ? `&state=${next}` : ''}`
@@ -72,6 +78,9 @@ const Contents = () => {
         </div>
       )}
       <WhiteBoard />
+      <div className="relative z-10">
+        <Toast showToast={showToast} toastMessage="SignInが必要です" />
+      </div>
     </div>
   )
 }
