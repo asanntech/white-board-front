@@ -64,6 +64,40 @@
         ]
       }
     },
+    "/rooms/{id}/creator": {
+      "get": {
+        "operationId": "getRoomCreator",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetRoomCreatorResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Room not found"
+          }
+        },
+        "summary": "Get creator userId of a room",
+        "tags": [
+          "rooms"
+        ]
+      }
+    },
     "/health": {
       "get": {
         "operationId": "getHealth",
@@ -167,6 +201,19 @@
         },
         "required": [
           "name",
+          "createdBy"
+        ]
+      },
+      "GetRoomCreatorResponseDto": {
+        "type": "object",
+        "properties": {
+          "createdBy": {
+            "type": "string",
+            "description": "User ID who created the room",
+            "example": "user123"
+          }
+        },
+        "required": [
           "createdBy"
         ]
       }

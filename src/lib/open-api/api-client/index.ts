@@ -13,6 +13,7 @@ export type { OpenAPIConfig } from './core/OpenAPI';
 export type { AuthVerifyRequestDto } from './models/AuthVerifyRequestDto';
 export type { AuthVerifyResponseDto } from './models/AuthVerifyResponseDto';
 export type { CreateRoomDto } from './models/CreateRoomDto';
+export type { GetRoomCreatorResponseDto } from './models/GetRoomCreatorResponseDto';
 
 export { AuthService } from './services/AuthService';
 export { HealthService } from './services/HealthService';

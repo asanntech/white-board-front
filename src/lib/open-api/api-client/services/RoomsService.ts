@@ -3,6 +3,7 @@
 /* tslint:disable */
 /* eslint-disable */
 import type { CreateRoomDto } from '../models/CreateRoomDto';
+import type { GetRoomCreatorResponseDto } from '../models/GetRoomCreatorResponseDto';
 import type { CancelablePromise } from '../core/CancelablePromise';
 import type { BaseHttpRequest } from '../core/BaseHttpRequest';
 export class RoomsService {
@@ -24,6 +25,27 @@ export class RoomsService {
             mediaType: 'application/json',
             errors: {
                 400: `Bad request`,
+            },
+        });
+    }
+    /**
+     * Get creator userId of a room
+     * @returns GetRoomCreatorResponseDto
+     * @throws ApiError
+     */
+    public getRoomCreator({
+        id,
+    }: {
+        id: string,
+    }): CancelablePromise<GetRoomCreatorResponseDto> {
+        return this.httpRequest.request({
+            method: 'GET',
+            url: '/rooms/{id}/creator',
+            path: {
+                'id': id,
+            },
+            errors: {
+                404: `Room not found`,
             },
         });
     }
