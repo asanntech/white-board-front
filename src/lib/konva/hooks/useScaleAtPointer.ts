@@ -4,7 +4,7 @@ import { useState } from 'react'
 import Konva from 'konva'
 
 export const useScaleAtPointer = (stageRef: React.RefObject<Konva.Stage | null>) => {
-  const [scale, setScale] = useState(1)
+  const [scale, setScale] = useState(0.7)
 
   const scaleAtPointer = (e: Konva.KonvaEventObject<WheelEvent>) => {
     // commandキーまたはctrlキーが押されていない場合はスクロールを許可
