@@ -1,3 +1,13 @@
+## White Board アプリケーション
+
+全体のシステムアーキテクチャ、CI/CD アーキテクチャはインフラリポジトリを参照<br>
+https://github.com/asanntech/white-board-infra
+
+#### 備考
+
+バックエンドリポジトリ：<br>
+https://github.com/asanntech/white-board-server
+
 ## セットアップ
 
 1\. pnpm コマンドの実行
@@ -163,6 +173,7 @@ sequenceDiagram
     participant WA as ホワイトボードA
     participant S as Socket Server <br>（Nest.js）
     participant DB as DynamoDB
+    participant S3 as S3
     participant WB as ホワイトボードB
     participant U2 as ユーザーB
 
@@ -192,4 +203,9 @@ sequenceDiagram
     S->>WB: Undo/Redoデータ配信
     WB->>WB: 履歴状態更新
     WB->>U2: UI更新
+
+    Note over U1,U2: スナップショット保存
+    S->>S: 定期的なスナップショット生成
+    S->>S3: キャンバス画像をS3に保存
+    S3->>S: 保存完了
 ```
