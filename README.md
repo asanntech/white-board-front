@@ -1,5 +1,13 @@
 ## White Board アプリケーション
 
+複数ユーザーがリアルタイムで共同作業できるオンラインホワイトボードアプリケーション
+
+- Socket 通信によるリアルタイム描画同期
+- 複数人での協調描画
+- 描画履歴の管理（Undo/Redo）
+- セキュアな認証基盤（Cognito + JWT）
+- クラウド永続化（DynamoDB + S3）
+
 全体のシステムアーキテクチャ、CI/CD アーキテクチャはインフラリポジトリを参照<br>
 https://github.com/asanntech/white-board-infra
 
