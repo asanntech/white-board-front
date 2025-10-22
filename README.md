@@ -2,6 +2,10 @@
 
 複数ユーザーがリアルタイムで共同作業できるオンラインホワイトボードアプリケーション
 
+| PC | iPhone
+| --- | ---
+| <video src="https://github.com/user-attachments/assets/26a0bb5a-49fa-4a3a-8396-73cba227a4e0" /> | <video src="https://github.com/user-attachments/assets/8f6ad793-1f77-4f03-bac4-e41094abfbc5" width="441" height="960" />
+
 - Socket 通信によるリアルタイム描画同期
 - 複数人での協調描画
 - 描画履歴の管理（Undo/Redo）
