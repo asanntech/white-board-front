@@ -2,7 +2,8 @@
 
 複数ユーザーがリアルタイムで共同作業できるオンラインホワイトボードアプリケーション
 
-#### PC(オーナー)とiPhone(参加者)による共同編集
+#### PC(オーナー)と iPhone(参加者)による共同編集
+
 - Socket 通信によるリアルタイム描画同期
 - 複数人での協調描画
 - セキュアな認証基盤（Cognito + JWT）
@@ -36,6 +37,28 @@ $ pnpm install
 ```bash
 pnpm dev
 ```
+
+## 主要技術スタック
+
+### フロントエンド
+
+- TypeScript
+- Next.js App Router
+- Tailwind CSS
+- Konva
+- Jotai
+- TanStack Query
+- Socket.IO
+
+### バックエンド / インフラ
+
+- Nest.js
+- ECS/ECR
+- Cognito
+- PostgreSQL
+- DynamoDB
+- Redis
+- Amazon S3
 
 ## ソフトウェアアーキテクチャ
 
@@ -163,17 +186,9 @@ sequenceDiagram
 
 #### 操作機能
 
-- **ズーム**: マウスホイールによる拡大・縮小
-- **パン**: Space キー + ドラッグによる移動
+- **ズーム**: マウスホイールによる拡大・縮小、ピンチイン/アウトによるタッチ操作
+- **パン**: Space キー + ドラッグによる移動、2 本指ドラッグによるタッチ操作
 - **選択範囲**: 矩形選択による複数オブジェクトの選択
-
-### 技術スタック
-
-- **Konva.js**: Canvas 描画ライブラリ
-- **Jotai**: 状態管理
-- **Socket.io**: リアルタイム通信
-- **DynamoDB**: 描画データの永続化
-- **React Hooks**: ビジネスロジックの分離
 
 ### リアルタイム通信フロー
 
