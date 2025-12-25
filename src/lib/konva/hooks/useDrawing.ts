@@ -3,9 +3,10 @@ import { useAtomValue, useSetAtom } from 'jotai'
 import Konva from 'konva'
 import { useCanvasCoordinates } from './useCanvasCoordinates'
 import { toolAtom, spaceKeyPressAtom } from '../atoms'
-import { lineNodesAtom, pushToHistoryAtom } from '../atoms'
+import { lineNodesAtom } from '../atoms'
+import { addDrawingAtom, drawingsAtom } from '@/lib/yjs'
 import { lineConfig } from '../constants'
-import { Tool } from '../types'
+import { Tool, Drawing } from '../types'
 
 // Lineオブジェクトの描画ロジックを管理
 export const useDrawing = () => {
@@ -22,7 +23,8 @@ export const useDrawing = () => {
   const isSpacePressed = useAtomValue(spaceKeyPressAtom)
 
   const displayLineNodes = useAtomValue(lineNodesAtom)
-  const pushToHistory = useSetAtom(pushToHistoryAtom)
+  const addDrawing = useSetAtom(addDrawingAtom)
+  const drawings = useAtomValue(drawingsAtom)
 
   const { getPointerPosition } = useCanvasCoordinates()
 
@@ -77,17 +79,26 @@ export const useDrawing = () => {
       setTempLineNode(null)
 
       if (isPenMode && isPushToHistory) {
-        pushToHistory(newLineNode)
+        // Konva.LineをDrawing型に変換してYjsに追加
+        const drawing: Drawing = newLineNode.attrs as Drawing
+        addDrawing(drawing)
       }
 
       return newLineNode
     },
-    [isPenMode, tempLineNode, pushToHistory]
+    [isPenMode, tempLineNode, addDrawing]
   )
 
+  // Yjsから取得したdrawingsをKonva.Lineに変換
+  const yjsLineNodes = useMemo(() => {
+    return drawings.map((drawing) => new Konva.Line({ ...drawing }))
+  }, [drawings])
+
+  // 一時的なLineとYjsから取得したLineを結合
   const lineNodes = useMemo(() => {
-    return tempLineNode && isPenMode ? [...displayLineNodes, tempLineNode] : displayLineNodes
-  }, [tempLineNode, displayLineNodes, isPenMode])
+    const baseNodes = yjsLineNodes.length > 0 ? yjsLineNodes : displayLineNodes
+    return tempLineNode && isPenMode ? [...baseNodes, tempLineNode] : baseNodes
+  }, [tempLineNode, displayLineNodes, yjsLineNodes, isPenMode])
 
   const eraserNode = useMemo(() => {
     return tempLineNode && !isPenMode ? tempLineNode : null

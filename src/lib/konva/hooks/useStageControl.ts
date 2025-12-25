@@ -6,9 +6,9 @@ import { useScaleAtPointer } from './useScaleAtPointer'
 import { useViewportSize } from './useViewportSize'
 import { useDrawing } from './useDrawing'
 import { useSelectionRange } from './useSelectionRange'
-import { useSocketManager } from './useSocketManager'
 import { useMultiTouch } from './useMultiTouch'
-import { spaceKeyPressAtom, toolAtom, pushToHistoryAtom, removeLineAtom, isReadyCanvasAtom } from '../atoms'
+import { spaceKeyPressAtom, toolAtom, isReadyCanvasAtom } from '../atoms'
+import { removeDrawingAtom, updateDrawingAtom } from '@/lib/yjs'
 import { canvasSize } from '../constants'
 import { Drawing } from '../types'
 
@@ -23,14 +23,15 @@ export const useStageControl = () => {
 
   const { scale, scaleAtPointer } = useScaleAtPointer(stageRef)
 
-  const { lineNodes, eraserNode, isDrawing, isPenMode, startDrawing, continueDrawing, finishDrawing } = useDrawing()
+  const { lineNodes, eraserNode, isDrawing, startDrawing, continueDrawing, finishDrawing } = useDrawing()
 
   const { selectionRectRef, selectionRectangle, displaySelectionRect, startSelection, updateSelection, endSelection } =
     useSelectionRange()
 
-  const { emitRemove, emitDrawing, emitTransform, emitDrawingEnd } = useSocketManager()
-
   const { clearActivePointers, startPanWithPinchZoom, panWithPinchZoom } = useMultiTouch()
+
+  const removeDrawing = useSetAtom(removeDrawingAtom)
+  const updateDrawing = useSetAtom(updateDrawingAtom)
 
   // ドラッグ範囲をcanvas領域に制限する
   const restrictDragWithinCanvas = useCallback(
@@ -71,12 +72,10 @@ export const useStageControl = () => {
       if (tool === 'select') {
         startSelection(e)
       } else {
-        const newLineNode = startDrawing(e)
-        const drawings = newLineNode ? [newLineNode.attrs as Drawing] : []
-        if (newLineNode && isPenMode) emitDrawing(drawings)
+        startDrawing(e)
       }
     },
-    [tool, isPenMode, startDrawing, startSelection, emitDrawing]
+    [tool, startDrawing, startSelection]
   )
 
   const handleTouchStart = useCallback(
@@ -132,11 +131,9 @@ export const useStageControl = () => {
       const lines = getIntersectingLines()
       transformer.nodes(lines)
     } else {
-      const newLineNode = finishDrawing()
-      const drawings = newLineNode?.attrs as Drawing | undefined
-      if (newLineNode && isPenMode && drawings) emitDrawingEnd(drawings)
+      finishDrawing()
     }
-  }, [tool, emitDrawingEnd, isPenMode, finishDrawing, endSelection, getIntersectingLines])
+  }, [tool, finishDrawing, endSelection, getIntersectingLines])
 
   const handleTouchEnd = useCallback(
     (e: KonvaEventObject<TouchEvent>) => {
@@ -151,18 +148,14 @@ export const useStageControl = () => {
     transformedStateRef.current = true
   }, [])
 
-  const removeLine = useSetAtom(removeLineAtom)
-
   const handleLinePointerOver = useCallback(
     (e: KonvaEventObject<PointerEvent>) => {
       if (tool === 'eraser' && isDrawing) {
         const id = e.target.attrs.id
-        removeLine(id)
-        const drawings = [e.target.attrs as Drawing]
-        emitRemove(drawings)
+        removeDrawing(id)
       }
     },
-    [tool, isDrawing, emitRemove, removeLine]
+    [tool, isDrawing, removeDrawing]
   )
 
   // マウスポインターが画面外に出た場合の処理
@@ -178,9 +171,7 @@ export const useStageControl = () => {
     if (selectionRectangle.visible) endSelection()
   }, [endSelection, selectionRectangle.visible, clearActivePointers])
 
-  const pushToHistory = useSetAtom(pushToHistoryAtom)
-
-  // 変形ツールに伴うノードの変更を履歴に追加
+  // 変形ツールに伴うノードの変更をYjsに反映
   const pushTransformToHistory = useCallback(
     (e: Konva.KonvaEventObject<Event>) => {
       if (!(e.currentTarget instanceof Konva.Transformer)) {
@@ -189,12 +180,10 @@ export const useStageControl = () => {
       }
 
       const newNodes = e.currentTarget.nodes().map((n) => n.clone()) as Konva.Line[]
-      pushToHistory(newNodes)
-
       const drawings = newNodes.map((n) => n.attrs as Drawing)
-      emitTransform(drawings)
+      drawings.forEach((drawing) => updateDrawing(drawing))
     },
-    [emitTransform, pushToHistory]
+    [updateDrawing]
   )
 
   const setIsReadyCanvas = useSetAtom(isReadyCanvasAtom)

@@ -1,8 +1,8 @@
 import { useEffect, RefObject } from 'react'
 import { useSetAtom, useAtomValue } from 'jotai'
 import Konva from 'konva'
-import { keyPressStateAtom, undoAtom, redoAtom, canUndoAtom, canRedoAtom, removeLineAtom } from '../atoms'
-import { useSocketManager } from './useSocketManager'
+import { keyPressStateAtom } from '../atoms'
+import { undoAtom, redoAtom, canUndoAtom, canRedoAtom, removeDrawingsAtom } from '@/lib/yjs'
 import { Drawing } from '../types'
 
 export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer | null>) => {
@@ -11,9 +11,7 @@ export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer
   const redo = useSetAtom(redoAtom)
   const canUndo = useAtomValue(canUndoAtom)
   const canRedo = useAtomValue(canRedoAtom)
-  const removeLine = useSetAtom(removeLineAtom)
-
-  const { emitRemove, emitUndo, emitRedo } = useSocketManager()
+  const removeDrawings = useSetAtom(removeDrawingsAtom)
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -27,21 +25,18 @@ export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer
         const selectedNodes = transformer.nodes().map((node: Konva.Node) => node.attrs as Drawing)
         const selectedNodeIds = selectedNodes.map((node) => node.id)
 
-        removeLine(selectedNodeIds)
+        removeDrawings(selectedNodeIds)
         transformer.nodes([]) // 選択をクリア
-        emitRemove(selectedNodes)
       }
 
       // Undo/Redo ショートカット
       if (e.ctrlKey || e.metaKey) {
         if (e.key === 'z' && !e.shiftKey && canUndo) {
           e.preventDefault()
-          const results = undo()
-          if (results) emitUndo(results)
+          undo()
         } else if ((e.key === 'y' || (e.key === 'z' && e.shiftKey)) && canRedo) {
           e.preventDefault()
-          const results = redo()
-          if (results) emitRedo(results)
+          redo()
         }
       }
     }
@@ -63,5 +58,5 @@ export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer
       window.removeEventListener('keyup', handleKeyUp)
       window.removeEventListener('blur', handleBlur)
     }
-  }, [setKeyPressState, undo, redo, canUndo, canRedo, removeLine, transformerRef, emitRemove, emitUndo, emitRedo])
+  }, [setKeyPressState, undo, redo, canUndo, canRedo, removeDrawings, transformerRef])
 }

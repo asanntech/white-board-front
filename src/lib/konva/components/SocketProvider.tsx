@@ -1,31 +1,31 @@
 import { useEffect } from 'react'
 import { useAtomValue, useSetAtom } from 'jotai'
-import { socketConnectionAtom, initializeSocketAtom, disconnectSocketAtom, socketErrorAtom } from '../atoms/socketAtom'
+import { yjsConnectionAtom, initYjsAtom, disconnectYjsAtom, yjsErrorAtom } from '@/lib/yjs'
 import { AuthApi } from '@/features/auth/api'
 
 export const SocketProvider = ({ children, roomId }: { children: React.ReactNode; roomId: string }) => {
-  const isConnected = useAtomValue(socketConnectionAtom)
-  const initializeSocket = useSetAtom(initializeSocketAtom)
-  const disconnectSocket = useSetAtom(disconnectSocketAtom)
-  const socketError = useAtomValue(socketErrorAtom)
+  const isConnected = useAtomValue(yjsConnectionAtom)
+  const initializeYjs = useSetAtom(initYjsAtom)
+  const disconnectYjs = useSetAtom(disconnectYjsAtom)
+  const yjsError = useAtomValue(yjsErrorAtom)
 
   useEffect(() => {
     const init = async () => {
       const authApi = new AuthApi()
       const token = await authApi.getToken()
       if (!token.hasToken) throw new Error('No token found')
-      initializeSocket(roomId, token.accessToken)
+      initializeYjs(roomId, token.accessToken)
     }
 
     init()
 
     return () => {
-      disconnectSocket()
+      disconnectYjs()
     }
-  }, [roomId, initializeSocket, disconnectSocket])
+  }, [roomId, initializeYjs, disconnectYjs])
 
-  if (socketError) {
-    throw new Error(socketError)
+  if (yjsError) {
+    throw new Error(yjsError)
   }
 
   if (!isConnected) return <></>
