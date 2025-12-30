@@ -20,18 +20,16 @@ export const lineNodesAtom = atom<Konva.Line[]>((get) => {
   return lines
 })
 
-export const addDrawingAtom = atom(null, (get, set, drawing: Drawing) => {
+export const addDrawingAtom = atom(null, (get, _, drawing: Drawing) => {
   const yDrawings = get(yDrawingsAtom)
   const yDoc = get(yDocAtom)
 
   yDoc.transact(() => {
     yDrawings.set(drawing.id, drawing)
   }, 'local')
-
-  set(yMapVersionAtom, (v) => v + 1)
 })
 
-export const addDrawingsAtom = atom(null, (get, set, drawings: Drawing[]) => {
+export const addDrawingsAtom = atom(null, (get, _, drawings: Drawing[]) => {
   const yDrawings = get(yDrawingsAtom)
   const yDoc = get(yDocAtom)
 
@@ -40,11 +38,9 @@ export const addDrawingsAtom = atom(null, (get, set, drawings: Drawing[]) => {
       yDrawings.set(drawing.id, drawing)
     })
   }, 'local')
-
-  set(yMapVersionAtom, (v) => v + 1)
 })
 
-export const removeDrawingAtom = atom(null, (get, set, ids: string | string[]) => {
+export const removeDrawingAtom = atom(null, (get, _, ids: string | string[]) => {
   const yDrawings = get(yDrawingsAtom)
   const yDoc = get(yDocAtom)
   const idsArray = Array.isArray(ids) ? ids : [ids]
@@ -54,11 +50,9 @@ export const removeDrawingAtom = atom(null, (get, set, ids: string | string[]) =
       yDrawings.delete(id)
     })
   }, 'local')
-
-  set(yMapVersionAtom, (v) => v + 1)
 })
 
-export const updateDrawingAtom = atom(null, (get, set, drawings: Drawing | Drawing[]) => {
+export const updateDrawingAtom = atom(null, (get, _, drawings: Drawing | Drawing[]) => {
   const yDrawings = get(yDrawingsAtom)
   const yDoc = get(yDocAtom)
   const drawingsArray = Array.isArray(drawings) ? drawings : [drawings]
@@ -68,6 +62,4 @@ export const updateDrawingAtom = atom(null, (get, set, drawings: Drawing | Drawi
       yDrawings.set(drawing.id, drawing)
     })
   }, 'local')
-
-  set(yMapVersionAtom, (v) => v + 1)
 })
