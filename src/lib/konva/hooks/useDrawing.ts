@@ -3,7 +3,8 @@ import { useAtomValue, useSetAtom } from 'jotai'
 import Konva from 'konva'
 import { useCanvasCoordinates } from './useCanvasCoordinates'
 import { toolAtom, spaceKeyPressAtom } from '../atoms'
-import { lineNodesAtom, pushToHistoryAtom } from '../atoms'
+import { lineNodesAtom, addDrawingAtom } from '../atoms'
+import { Drawing } from '../types'
 import { lineConfig } from '../constants'
 import { Tool } from '../types'
 
@@ -22,7 +23,7 @@ export const useDrawing = () => {
   const isSpacePressed = useAtomValue(spaceKeyPressAtom)
 
   const displayLineNodes = useAtomValue(lineNodesAtom)
-  const pushToHistory = useSetAtom(pushToHistoryAtom)
+  const addDrawing = useSetAtom(addDrawingAtom)
 
   const { getPointerPosition } = useCanvasCoordinates()
 
@@ -77,12 +78,13 @@ export const useDrawing = () => {
       setTempLineNode(null)
 
       if (isPenMode && isPushToHistory) {
-        pushToHistory(newLineNode)
+        const drawing = newLineNode.attrs as Drawing
+        addDrawing(drawing)
       }
 
       return newLineNode
     },
-    [isPenMode, tempLineNode, pushToHistory]
+    [isPenMode, tempLineNode, addDrawing]
   )
 
   const lineNodes = useMemo(() => {
