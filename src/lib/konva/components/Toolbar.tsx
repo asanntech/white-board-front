@@ -1,7 +1,6 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
 import { toolAtom, canUndoAtom, canRedoAtom, undoAtom, redoAtom } from '../atoms'
 import { SelectIcon, PenIcon, UndoIcon, RedoIcon, BrushIcon, EraserIcon, RedPenIcon } from '@/components/icons'
-import { useSocketManager } from '../hooks/useSocketManager'
 import { Tool } from '../types'
 import { IconButton } from '@/components/button'
 
@@ -11,8 +10,6 @@ export const Toolbar = () => {
   const canRedo = useAtomValue(canRedoAtom)
   const undo = useSetAtom(undoAtom)
   const redo = useSetAtom(redoAtom)
-
-  const { emitUndo, emitRedo } = useSocketManager()
 
   const tools: { icon: React.ReactNode; id: Tool }[] = [
     { icon: <PenIcon />, id: 'pen' },
@@ -25,19 +22,13 @@ export const Toolbar = () => {
     {
       icon: <UndoIcon />,
       id: 'undo',
-      onClick: () => {
-        const results = undo()
-        if (results) emitUndo(results)
-      },
+      onClick: () => undo(),
       disabled: !canUndo,
     },
     {
       icon: <RedoIcon />,
       id: 'redo',
-      onClick: () => {
-        const results = redo()
-        if (results) emitRedo(results)
-      },
+      onClick: () => redo(),
       disabled: !canRedo,
     },
   ]
