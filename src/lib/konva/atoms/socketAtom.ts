@@ -10,7 +10,6 @@ type ServerToClientEvents = {
 }
 
 export type ClientToServerEvents = {
-  join: (params: { roomId: string }) => void
   'yjs:update': (params: { roomId: string; update: number[] }) => void
   'yjs:sync:request': (params: { roomId: string }) => void
 }
@@ -53,7 +52,6 @@ export const initializeSocketAtom = atom(null, (get, set, roomId: string, token:
     set(socketConnectionAtom, true)
     set(socketErrorAtom, null)
     set(roomIdAtom, roomId)
-    newSocket.emit('join', { roomId })
     newSocket.emit('yjs:sync:request', { roomId })
   })
 
