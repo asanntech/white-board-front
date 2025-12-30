@@ -19,8 +19,3 @@ export type Drawing = {
   lineJoin?: LineJoin
   opacity?: number
 }
-
-export type UndoRedoResult = {
-  action: 'delete' | 'restore' | 'transform'
-  objects: Drawing[]
-}
