@@ -20,6 +20,10 @@ const WhiteBoard = dynamic(() => import('@/lib/konva').then((mod) => mod.WhiteBo
   ssr: false,
 })
 
+const YjsProvider = dynamic(() => import('@/lib/konva/components').then((mod) => mod.YjsProvider), {
+  ssr: false,
+})
+
 export default function Home() {
   return (
     <QueryClientProvider client={queryClient}>
@@ -66,21 +70,23 @@ const Contents = () => {
   if (isAuthLoading || authData?.hasToken || !isMinTimeElapsed) return <Loading />
 
   return (
-    <div className="relative">
-      {!selectedFreeTrial && (
-        <div className="absolute top-0 left-0 w-dvw h-dvh bg-stone-900/50 z-10">
-          <MainMenu signInUrl={signInUrlWithRedirectPath} onClickFreeTrial={() => setSelectedFreeTrial(true)} />
+    <YjsProvider>
+      <div className="relative">
+        {!selectedFreeTrial && (
+          <div className="absolute top-0 left-0 w-dvw h-dvh bg-stone-900/50 z-10">
+            <MainMenu signInUrl={signInUrlWithRedirectPath} onClickFreeTrial={() => setSelectedFreeTrial(true)} />
+          </div>
+        )}
+        {selectedFreeTrial && (
+          <div className="fixed z-1 right-5 top-5 flex gap-2 bg-white rounded-md p-1 shadow-md">
+            <IconButton icon={<SignInIcon />} onClick={signIn} />
+          </div>
+        )}
+        <WhiteBoard />
+        <div className="relative z-10">
+          <Toast showToast={showToast} toastMessage="SignInが必要です" />
         </div>
-      )}
-      {selectedFreeTrial && (
-        <div className="fixed z-1 right-5 top-5 flex gap-2 bg-white rounded-md p-1 shadow-md">
-          <IconButton icon={<SignInIcon />} onClick={signIn} />
-        </div>
-      )}
-      <WhiteBoard />
-      <div className="relative z-10">
-        <Toast showToast={showToast} toastMessage="SignInが必要です" />
       </div>
-    </div>
+    </YjsProvider>
   )
 }

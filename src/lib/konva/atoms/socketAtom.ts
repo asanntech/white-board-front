@@ -1,20 +1,24 @@
 import { atom } from 'jotai'
 import { io, Socket } from 'socket.io-client'
-import * as Y from 'yjs'
-import { yDoc } from './yjsAtom'
+import { yDrawings, YJS_ORIGIN } from './yjsAtom'
+import { Drawing } from '../types'
 
 type ServerToClientEvents = {
-  'yjs:update': (data: { update: number[] }) => void
-  'yjs:sync': (data: { state: number[] }) => void
+  drawing: (data: Drawing) => void
+  drawingEnd: (data: Drawing) => void
+  transform: (data: Drawing[]) => void
+  remove: (data: Drawing[]) => void
+  roomData: (data: Drawing[]) => void
   userEntered: (userId: string) => void
 }
 
 export type ClientToServerEvents = {
-  'yjs:update': (params: { roomId: string; update: number[] }) => void
-  'yjs:sync:request': (params: { roomId: string }) => void
+  join: (params: { roomId: string }) => void
+  drawing: (params: { roomId: string; drawings: Drawing[] }) => void
+  drawingEnd: (params: { roomId: string; drawing: Drawing }) => void
+  transform: (params: { roomId: string; drawings: Drawing[] }) => void
+  remove: (params: { roomId: string; drawings: Drawing[] }) => void
 }
-
-type YjsOrigin = 'local' | 'remote'
 
 export const socketAtom = atom<Socket<ServerToClientEvents, ClientToServerEvents> | null>(null)
 export const socketConnectionAtom = atom<boolean>(false)
@@ -37,27 +41,15 @@ export const initializeSocketAtom = atom(null, (get, set, roomId: string, token:
     auth: { token },
   })
 
-  const handleUpdate = (update: Uint8Array, origin: YjsOrigin) => {
-    if (origin === 'local') {
-      newSocket.emit('yjs:update', {
-        roomId,
-        update: Array.from(update),
-      })
-    }
-  }
-
-  yDoc.on('update', handleUpdate)
-
   newSocket.on('connect', () => {
     set(socketConnectionAtom, true)
     set(socketErrorAtom, null)
     set(roomIdAtom, roomId)
-    newSocket.emit('yjs:sync:request', { roomId })
+    newSocket.emit('join', { roomId })
   })
 
   newSocket.on('disconnect', () => {
     set(socketConnectionAtom, false)
-    yDoc.off('update', handleUpdate)
   })
 
   newSocket.io.on('reconnect_failed', () => {
@@ -65,14 +57,41 @@ export const initializeSocketAtom = atom(null, (get, set, roomId: string, token:
     set(socketErrorAtom, 'Connection failed')
   })
 
-  newSocket.on('yjs:update', (data: { update: number[] }) => {
-    const update = new Uint8Array(data.update)
-    Y.applyUpdate(yDoc, update, 'remote')
+  // リモートからの受信 → ローカルYjsに反映（REMOTEタグで無限ループ防止）
+  newSocket.on('drawing', (data: Drawing) => {
+    yDrawings.doc?.transact(() => {
+      yDrawings.set(data.id, data)
+    }, YJS_ORIGIN.REMOTE)
   })
 
-  newSocket.on('yjs:sync', (data: { state: number[] }) => {
-    const state = new Uint8Array(data.state)
-    Y.applyUpdate(yDoc, state, 'remote')
+  newSocket.on('drawingEnd', (data: Drawing) => {
+    yDrawings.doc?.transact(() => {
+      yDrawings.set(data.id, data)
+    }, YJS_ORIGIN.REMOTE)
+  })
+
+  newSocket.on('transform', (data: Drawing[]) => {
+    yDrawings.doc?.transact(() => {
+      data.forEach((drawing) => {
+        yDrawings.set(drawing.id, drawing)
+      })
+    }, YJS_ORIGIN.REMOTE)
+  })
+
+  newSocket.on('remove', (data: Drawing[]) => {
+    yDrawings.doc?.transact(() => {
+      data.forEach((drawing) => {
+        yDrawings.delete(drawing.id)
+      })
+    }, YJS_ORIGIN.REMOTE)
+  })
+
+  newSocket.on('roomData', (data: Drawing[]) => {
+    yDrawings.doc?.transact(() => {
+      data.forEach((drawing) => {
+        yDrawings.set(drawing.id, drawing)
+      })
+    }, YJS_ORIGIN.REMOTE)
   })
 
   newSocket.on('userEntered', (userId: string) => {

@@ -1,6 +1,6 @@
 import { atom } from 'jotai'
 import Konva from 'konva'
-import { yDocAtom, yDrawingsAtom } from './yjsAtom'
+import { yDocAtom, yDrawingsAtom, YJS_ORIGIN } from './yjsAtom'
 import { Drawing } from '../types'
 
 // Y.Mapの変更をJotaiに通知するためのトリガー
@@ -26,7 +26,7 @@ export const addDrawingAtom = atom(null, (get, _, drawing: Drawing) => {
 
   yDoc.transact(() => {
     yDrawings.set(drawing.id, drawing)
-  }, 'local')
+  }, YJS_ORIGIN.DRAWING)
 })
 
 export const addDrawingsAtom = atom(null, (get, _, drawings: Drawing[]) => {
@@ -37,7 +37,7 @@ export const addDrawingsAtom = atom(null, (get, _, drawings: Drawing[]) => {
     drawings.forEach((drawing) => {
       yDrawings.set(drawing.id, drawing)
     })
-  }, 'local')
+  }, YJS_ORIGIN.DRAWING)
 })
 
 export const removeDrawingAtom = atom(null, (get, _, ids: string | string[]) => {
@@ -49,7 +49,7 @@ export const removeDrawingAtom = atom(null, (get, _, ids: string | string[]) => 
     idsArray.forEach((id) => {
       yDrawings.delete(id)
     })
-  }, 'local')
+  }, YJS_ORIGIN.REMOVE)
 })
 
 export const updateDrawingAtom = atom(null, (get, _, drawings: Drawing | Drawing[]) => {
@@ -61,5 +61,5 @@ export const updateDrawingAtom = atom(null, (get, _, drawings: Drawing | Drawing
     drawingsArray.forEach((drawing) => {
       yDrawings.set(drawing.id, drawing)
     })
-  }, 'local')
+  }, YJS_ORIGIN.TRANSFORM)
 })

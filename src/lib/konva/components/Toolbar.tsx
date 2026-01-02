@@ -1,13 +1,12 @@
 import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { toolAtom, canUndoAtom, canRedoAtom, undoAtom, redoAtom } from '../atoms'
+import { toolAtom, undoManagerAtom, undoAtom, redoAtom } from '../atoms'
 import { SelectIcon, PenIcon, UndoIcon, RedoIcon, BrushIcon, EraserIcon, RedPenIcon } from '@/components/icons'
 import { Tool } from '../types'
 import { IconButton } from '@/components/button'
 
 export const Toolbar = () => {
   const [tool, setTool] = useAtom(toolAtom)
-  const canUndo = useAtomValue(canUndoAtom)
-  const canRedo = useAtomValue(canRedoAtom)
+  const undoManager = useAtomValue(undoManagerAtom)
   const undo = useSetAtom(undoAtom)
   const redo = useSetAtom(redoAtom)
 
@@ -23,13 +22,13 @@ export const Toolbar = () => {
       icon: <UndoIcon />,
       id: 'undo',
       onClick: () => undo(),
-      disabled: !canUndo,
+      disabled: !undoManager.undoStack.length,
     },
     {
       icon: <RedoIcon />,
       id: 'redo',
       onClick: () => redo(),
-      disabled: !canRedo,
+      disabled: !undoManager.redoStack.length,
     },
   ]
 

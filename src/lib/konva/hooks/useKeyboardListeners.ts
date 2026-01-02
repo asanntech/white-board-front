@@ -1,14 +1,13 @@
 import { useEffect, RefObject } from 'react'
 import { useSetAtom, useAtomValue } from 'jotai'
 import Konva from 'konva'
-import { keyPressStateAtom, undoAtom, redoAtom, canUndoAtom, canRedoAtom, removeDrawingAtom } from '../atoms'
+import { keyPressStateAtom, undoAtom, redoAtom, undoManagerAtom, removeDrawingAtom } from '../atoms'
 
 export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer | null>) => {
   const setKeyPressState = useSetAtom(keyPressStateAtom)
   const undo = useSetAtom(undoAtom)
   const redo = useSetAtom(redoAtom)
-  const canUndo = useAtomValue(canUndoAtom)
-  const canRedo = useAtomValue(canRedoAtom)
+  const undoManager = useAtomValue(undoManagerAtom)
   const removeDrawing = useSetAtom(removeDrawingAtom)
 
   useEffect(() => {
@@ -28,10 +27,10 @@ export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer
 
       // Undo/Redo ショートカット
       if (e.ctrlKey || e.metaKey) {
-        if (e.key === 'z' && !e.shiftKey && canUndo) {
+        if (e.key === 'z' && !e.shiftKey && undoManager.undoStack.length) {
           e.preventDefault()
           undo()
-        } else if ((e.key === 'y' || (e.key === 'z' && e.shiftKey)) && canRedo) {
+        } else if ((e.key === 'y' || (e.key === 'z' && e.shiftKey)) && undoManager.redoStack.length) {
           e.preventDefault()
           redo()
         }
@@ -55,5 +54,5 @@ export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer
       window.removeEventListener('keyup', handleKeyUp)
       window.removeEventListener('blur', handleBlur)
     }
-  }, [setKeyPressState, undo, redo, canUndo, canRedo, removeDrawing, transformerRef])
+  }, [setKeyPressState, undo, redo, undoManager, removeDrawing, transformerRef])
 }
