@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useRef } from 'react'
-import { useAtomValue, useSetAtom } from 'jotai'
 import { KonvaEventObject } from 'konva/lib/Node'
 import Konva from 'konva'
 import { useScaleAtPointer } from './useScaleAtPointer'
@@ -8,7 +7,7 @@ import { useDrawing } from './useDrawing'
 import { useSelectionRange } from './useSelectionRange'
 import { useSocketManager } from './useSocketManager'
 import { useMultiTouch } from './useMultiTouch'
-import { spaceKeyPressAtom, toolAtom, pushToHistoryAtom, removeLineAtom, isReadyCanvasAtom } from '../atoms'
+import { useKonvaStore, selectIsSpacePressed } from '@/stores/konva'
 import { canvasSize } from '../constants'
 import { Drawing } from '../types'
 
@@ -16,8 +15,8 @@ export const useStageControl = () => {
   const stageRef = useRef<Konva.Stage>(null)
   const transformerRef = useRef<Konva.Transformer>(null)
 
-  const tool = useAtomValue(toolAtom)
-  const isSpacePressed = useAtomValue(spaceKeyPressAtom)
+  const tool = useKonvaStore((s) => s.tool)
+  const isSpacePressed = useKonvaStore(selectIsSpacePressed)
 
   const { width, height } = useViewportSize()
 
@@ -151,7 +150,7 @@ export const useStageControl = () => {
     transformedStateRef.current = true
   }, [])
 
-  const removeLine = useSetAtom(removeLineAtom)
+  const removeLine = useKonvaStore((s) => s.removeLine)
 
   const handleLinePointerOver = useCallback(
     (e: KonvaEventObject<PointerEvent>) => {
@@ -178,7 +177,7 @@ export const useStageControl = () => {
     if (selectionRectangle.visible) endSelection()
   }, [endSelection, selectionRectangle.visible, clearActivePointers])
 
-  const pushToHistory = useSetAtom(pushToHistoryAtom)
+  const pushToHistory = useKonvaStore((s) => s.pushToHistory)
 
   // 変形ツールに伴うノードの変更を履歴に追加
   const pushTransformToHistory = useCallback(
@@ -197,7 +196,7 @@ export const useStageControl = () => {
     [emitTransform, pushToHistory]
   )
 
-  const setIsReadyCanvas = useSetAtom(isReadyCanvasAtom)
+  const setIsReadyCanvas = useKonvaStore((s) => s.setIsReadyCanvas)
 
   // 初期状態でカメラを中央に配置（初回のみ）
   useEffect(() => {
