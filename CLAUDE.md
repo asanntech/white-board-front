@@ -14,7 +14,7 @@
 
 - **言語**: TypeScript
 - **フレームワーク**: Next.js 15 (App Router, Turbopack)
-- **状態管理**: Jotai
+- **状態管理**: Zustand
 - **データフェッチ**: TanStack Query
 - **描画ライブラリ**: Konva (react-konva)
 - **リアルタイム通信**: Socket.IO
@@ -39,7 +39,9 @@ src/
 │   ├── api/                # API Routes (認証コールバック、トークン管理)
 │   └── (auth)/             # 認証が必要なページ群
 │       └── room/[id]/      # ホワイトボードルーム
-├── atoms/                  # グローバル状態（Jotai atoms）
+├── stores/                 # グローバル状態（Zustand stores）
+│   ├── userStore.ts        # ユーザー状態
+│   └── konva/              # ホワイトボード状態（スライスパターン）
 ├── components/             # 共通UIコンポーネント
 ├── features/               # ドメイン・インフラ層
 │   ├── auth/               # 認証ドメイン
@@ -49,7 +51,6 @@ src/
 ├── hooks/                  # アプリケーション層（カスタムフック）
 ├── lib/
 │   ├── konva/              # ホワイトボード機能
-│   │   ├── atoms/          # キャンバス状態（履歴、選択、ツール等）
 │   │   ├── hooks/          # 描画ロジック、ズーム/パン、ソケット通信
 │   │   └── components/     # UI表現層（ツールバー等）
 │   ├── open-api/           # OpenAPIクライアント（自動生成）
@@ -68,14 +69,14 @@ src/
 
 ### ホワイトボード機能 (`src/lib/konva`)
 
-- atoms経由で状態管理（直接UIから変更しない）
+- stores経由で状態管理（直接UIから変更しない）
 - hooks経由でビジネスロジックを実行
 - componentsはロジックをhooksに委譲
 
 ## コーディング規約
 
 - UIコンポーネントはロジックをhooksに委譲する
-- 状態変更はatoms経由で行う（直接変更しない）
+- 状態変更はstores経由で行う（直接変更しない）
 - エラーハンドリングはErrorBoundary（react-error-boundary）で一括管理
 - 外部API連携はTanStack Queryを使用
 
