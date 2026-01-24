@@ -1,16 +1,16 @@
-import { useAtom, useAtomValue, useSetAtom } from 'jotai'
-import { toolAtom, canUndoAtom, canRedoAtom, undoAtom, redoAtom } from '../atoms'
+import { useKonvaStore, selectCanUndo, selectCanRedo } from '@/stores/konva'
 import { SelectIcon, PenIcon, UndoIcon, RedoIcon, BrushIcon, EraserIcon, RedPenIcon } from '@/components/icons'
 import { useSocketManager } from '../hooks/useSocketManager'
 import { Tool } from '../types'
 import { IconButton } from '@/components/button'
 
 export const Toolbar = () => {
-  const [tool, setTool] = useAtom(toolAtom)
-  const canUndo = useAtomValue(canUndoAtom)
-  const canRedo = useAtomValue(canRedoAtom)
-  const undo = useSetAtom(undoAtom)
-  const redo = useSetAtom(redoAtom)
+  const tool = useKonvaStore((s) => s.tool)
+  const setTool = useKonvaStore((s) => s.setTool)
+  const canUndo = useKonvaStore(selectCanUndo)
+  const canRedo = useKonvaStore(selectCanRedo)
+  const undo = useKonvaStore((s) => s.undo)
+  const redo = useKonvaStore((s) => s.redo)
 
   const { emitUndo, emitRedo } = useSocketManager()
 

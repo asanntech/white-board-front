@@ -1,7 +1,6 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query'
 import { AuthApi } from './api'
-import { useSetAtom } from 'jotai'
-import { userIdAtom } from '@/atoms'
+import { useUserStore } from '@/stores'
 
 type UseAuthSessionResult =
   | {
@@ -19,7 +18,7 @@ type UseAuthSessionOptions = UseQueryOptions<UseAuthSessionResult, Error>
 export const useAuthSession = (options?: UseAuthSessionOptions) => {
   const authApi = new AuthApi()
 
-  const setUserId = useSetAtom(userIdAtom)
+  const setUserId = useUserStore((s) => s.setUserId)
 
   return useQuery<UseAuthSessionResult, Error>({
     queryKey: ['auth', 'session'],

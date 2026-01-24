@@ -1,7 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import { RoomApi } from './api'
-import { useAtomValue } from 'jotai'
-import { userIdAtom } from '@/atoms'
+import { useUserStore } from '@/stores'
 
 type UseRoomCreatorResult = {
   createdByUserId: string
@@ -11,7 +10,7 @@ type UseRoomCreatorResult = {
 export const useRoomCreator = (roomId: string) => {
   const roomApi = new RoomApi()
 
-  const userId = useAtomValue(userIdAtom)
+  const userId = useUserStore((s) => s.userId)
 
   return useQuery<UseRoomCreatorResult, Error>({
     queryKey: ['room', roomId],

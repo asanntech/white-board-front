@@ -1,23 +1,15 @@
 import { useCallback } from 'react'
-import { useSetAtom, useAtomValue } from 'jotai'
-import {
-  socketAtom,
-  roomIdAtom,
-  socketConnectionAtom,
-  socketErrorAtom,
-  initializeSocketAtom,
-  disconnectSocketAtom,
-} from '../atoms/socketAtom'
+import { useKonvaStore } from '@/stores/konva'
 import { Drawing, UndoRedoResult } from '../types'
 
 // Socket接続を管理
 export const useSocketManager = () => {
-  const socket = useAtomValue(socketAtom)
-  const roomId = useAtomValue(roomIdAtom)
-  const isConnected = useAtomValue(socketConnectionAtom)
-  const error = useAtomValue(socketErrorAtom)
-  const initializeSocket = useSetAtom(initializeSocketAtom)
-  const disconnectSocket = useSetAtom(disconnectSocketAtom)
+  const socket = useKonvaStore((s) => s.socket)
+  const roomId = useKonvaStore((s) => s.roomId)
+  const isConnected = useKonvaStore((s) => s.isConnected)
+  const error = useKonvaStore((s) => s.socketError)
+  const initializeSocket = useKonvaStore((s) => s.initializeSocket)
+  const disconnectSocket = useKonvaStore((s) => s.disconnectSocket)
 
   const emitDrawing = useCallback(
     (drawings: Drawing[]) => {

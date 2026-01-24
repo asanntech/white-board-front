@@ -1,23 +1,23 @@
 import { useEffect, RefObject } from 'react'
-import { useSetAtom, useAtomValue } from 'jotai'
 import Konva from 'konva'
-import { keyPressStateAtom, undoAtom, redoAtom, canUndoAtom, canRedoAtom, removeLineAtom } from '../atoms'
+import { useKonvaStore, selectCanUndo, selectCanRedo } from '@/stores/konva'
 import { useSocketManager } from './useSocketManager'
 import { Drawing } from '../types'
 
 export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer | null>) => {
-  const setKeyPressState = useSetAtom(keyPressStateAtom)
-  const undo = useSetAtom(undoAtom)
-  const redo = useSetAtom(redoAtom)
-  const canUndo = useAtomValue(canUndoAtom)
-  const canRedo = useAtomValue(canRedoAtom)
-  const removeLine = useSetAtom(removeLineAtom)
+  const setKeyPress = useKonvaStore((s) => s.setKeyPress)
+  const clearKeyPressState = useKonvaStore((s) => s.clearKeyPressState)
+  const undo = useKonvaStore((s) => s.undo)
+  const redo = useKonvaStore((s) => s.redo)
+  const canUndo = useKonvaStore(selectCanUndo)
+  const canRedo = useKonvaStore(selectCanRedo)
+  const removeLine = useKonvaStore((s) => s.removeLine)
 
   const { emitRemove, emitUndo, emitRedo } = useSocketManager()
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      setKeyPressState((prev) => ({ ...prev, [e.code]: true }))
+      setKeyPress(e.code, true)
 
       // Delete キーで選択中のLineを削除
       if (e.key === 'Delete' || e.key === 'Backspace') {
@@ -47,11 +47,11 @@ export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer
     }
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      setKeyPressState((prev) => ({ ...prev, [e.code]: false }))
+      setKeyPress(e.code, false)
     }
 
     const handleBlur = () => {
-      setKeyPressState({})
+      clearKeyPressState()
     }
 
     window.addEventListener('keydown', handleKeyDown)
@@ -63,5 +63,5 @@ export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer
       window.removeEventListener('keyup', handleKeyUp)
       window.removeEventListener('blur', handleBlur)
     }
-  }, [setKeyPressState, undo, redo, canUndo, canRedo, removeLine, transformerRef, emitRemove, emitUndo, emitRedo])
+  }, [setKeyPress, clearKeyPressState, undo, redo, canUndo, canRedo, removeLine, transformerRef, emitRemove, emitUndo, emitRedo])
 }
