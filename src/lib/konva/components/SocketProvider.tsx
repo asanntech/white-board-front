@@ -1,13 +1,12 @@
 import { useEffect } from 'react'
-import { useAtomValue, useSetAtom } from 'jotai'
-import { socketConnectionAtom, initializeSocketAtom, disconnectSocketAtom, socketErrorAtom } from '../atoms/socketAtom'
+import { useKonvaStore } from '@/stores/konva'
 import { AuthApi } from '@/features/auth/api'
 
 export const SocketProvider = ({ children, roomId }: { children: React.ReactNode; roomId: string }) => {
-  const isConnected = useAtomValue(socketConnectionAtom)
-  const initializeSocket = useSetAtom(initializeSocketAtom)
-  const disconnectSocket = useSetAtom(disconnectSocketAtom)
-  const socketError = useAtomValue(socketErrorAtom)
+  const isConnected = useKonvaStore((s) => s.isConnected)
+  const initializeSocket = useKonvaStore((s) => s.initializeSocket)
+  const disconnectSocket = useKonvaStore((s) => s.disconnectSocket)
+  const socketError = useKonvaStore((s) => s.socketError)
 
   useEffect(() => {
     const init = async () => {

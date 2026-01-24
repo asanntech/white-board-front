@@ -5,10 +5,9 @@ import { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useDeleteTokenMutation } from '@/features/auth'
 import { useRoomCreator } from '@/features/room'
-import { isReadyCanvasAtom } from '@/lib/konva/atoms'
+import { useKonvaStore } from '@/stores/konva'
 import { SocketProvider } from '@/lib/konva/components'
 import { signOutUrl } from '@/shared/constants'
-import { useAtomValue } from 'jotai'
 import { IconButton } from '@/components/button'
 import { SignOutIcon } from '@/components/icons'
 import { Toast } from '@/components/toast'
@@ -25,7 +24,7 @@ export default function MyRoomPage() {
     },
   })
 
-  const isReadyCanvas = useAtomValue(isReadyCanvasAtom)
+  const isReadyCanvas = useKonvaStore((s) => s.isReadyCanvas)
 
   const router = useRouter()
   const params = useParams()
