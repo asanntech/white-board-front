@@ -46,7 +46,7 @@ pnpm dev
 - Next.js App Router
 - Tailwind CSS
 - Konva
-- Jotai
+- Zustand
 - TanStack Query
 - Socket.IO
 
@@ -164,7 +164,7 @@ sequenceDiagram
 
 ### アーキテクチャ概要
 
-- **atoms/**: アプリ状態の単位（キャンバス、履歴、選択範囲、キーボード、ソケット、ツールなど）。UI から直接変更せず、フック経由で操作。
+- **stores/konva/**: アプリ状態の単位（キャンバス、履歴、選択範囲、キーボード、ソケット、ツールなど）。Zustandのスライスパターンで管理。UI から直接変更せず、フック経由で操作。
 - **hooks/**: ビジネスロジックと副作用の境界。描画処理、座標変換、ズーム/パン、選択範囲、ステージ制御、キーボードリスナー、ソケット通信管理などを提供。
 - **components/**: UI 表現層。方眼紙レイヤー、ツールバー、Provider などのビューを組み合わせ、ロジックは極力 hooks に委譲。
 - **WhiteBoard.tsx**: 構成ルート。Provider/レイヤー/各種フックを組み合わせてホワイトボードを組み立てる。
