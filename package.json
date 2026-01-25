@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start -p 3000 -H 0.0.0.0",
     "lint": "next lint",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
     "generate-api": "openapi --input ./src/lib/open-api/open-api.json --output ./src/lib/open-api/api-client --name ApiClient --useOptions --useUnionTypes"
   },
   "dependencies": {
