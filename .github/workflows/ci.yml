@@ -20,6 +20,19 @@ jobs:
       - name: Run lint
         run: pnpm lint
 
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js and pnpm
+        uses: ./.github/actions/setup-node-pnpm
+
+      - name: Run tests
+        run: pnpm test --run
+
   check-api-client:
     name: Check API Client
     runs-on: ubuntu-latest
