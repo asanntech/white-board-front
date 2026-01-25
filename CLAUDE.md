@@ -80,6 +80,12 @@ src/
 - エラーハンドリングはErrorBoundary（react-error-boundary）で一括管理
 - 外部API連携はTanStack Queryを使用
 
+## コミット規約
+
+- 各タスク完了時にコミットを作成する
+- コミット前にメッセージをユーザーに確認する
+- コミットメッセージは端的に記述する
+
 ## 認証
 
 - Cognito + JWT認証
