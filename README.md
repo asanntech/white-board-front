@@ -60,6 +60,20 @@ pnpm dev
 - Redis
 - Amazon S3
 
+## テスト
+
+### ユニット・結合テスト
+
+- Vitest
+- Testing Library
+
+```bash
+pnpm test      # テスト実行
+pnpm test:ui   # UIモードでテスト実行
+```
+
+ドメイン層（エンティティ、値オブジェクト）とアプリケーション層（hooks、stores）を重点的にテスト。
+
 ## ソフトウェアアーキテクチャ
 
 プロジェクト構成はレイヤードアーキテクチャを採用。
