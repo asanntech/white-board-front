@@ -30,6 +30,10 @@ lerna-debug.log*
 **/coverage
 **/.nyc_output
 
+# Playwright
+playwright-report/
+test-results/
+
 # IDEs and editors
 **/.idea
 .project
