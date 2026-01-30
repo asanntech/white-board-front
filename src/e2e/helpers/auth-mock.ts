@@ -105,7 +105,7 @@ export async function setupSocketMock(page: Page) {
 export async function blockCognitoNavigation(page: Page) {
   const navigatedUrls: string[] = []
 
-  await page.route('**/amazoncognito.com/**', (route) => {
+  await page.route(/amazoncognito\.com/, (route) => {
     navigatedUrls.push(route.request().url())
     route.abort()
   })
