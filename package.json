@@ -47,6 +47,7 @@
     "eslint-plugin-react-hooks": "^5.2.0",
     "import-in-the-middle": "^1.14.4",
     "jsdom": "^27.4.0",
+    "msw": "^2.12.7",
     "openapi-typescript-codegen": "^0.29.0",
     "require-in-the-middle": "^7.5.2",
     "tailwindcss": "^4.1.11",
