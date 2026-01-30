@@ -60,12 +60,13 @@ pnpm dev
 - Redis
 - Amazon S3
 
-## テスト
+## テスト戦略
 
 ### ユニット・結合テスト
 
 - Vitest
 - Testing Library
+- MSW (Mock Service Worker)
 
 ```bash
 pnpm test      # テスト実行
@@ -73,6 +74,8 @@ pnpm test:ui   # UIモードでテスト実行
 ```
 
 ドメイン層（エンティティ、値オブジェクト）とアプリケーション層（hooks、stores）を重点的にテスト。
+
+API通信を伴う結合テストでは、MSWによりネットワークレベルでHTTPリクエストをインターセプトし、実際のAPIクライアントコードを通過させた状態でテストを行う。ハンドラは`src/mocks/handlers/`にドメイン単位で定義し、テスト環境間で共有可能な構成としている。
 
 ### E2Eテスト
 
