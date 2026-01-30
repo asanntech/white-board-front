@@ -6,6 +6,10 @@ import { AuthVerifyResponseDto } from '@/lib/open-api/api-client'
 export class AuthApi implements AuthRepository {
   private static token: AuthToken
 
+  public static resetCache() {
+    AuthApi.token = { hasToken: false }
+  }
+
   // トークンを取得する
   public async getToken() {
     // 既にトークンが存在する場合 かつ 有効期限が切れていない場合
