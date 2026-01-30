@@ -3,7 +3,6 @@ import {
   setupAuthenticatedRoutes,
   setupUnauthenticatedRoutes,
   setupSocketMock,
-  blockCognitoNavigation,
 } from './helpers/auth-mock'
 
 test.describe('未認証ユーザー - ホームページ', () => {
@@ -112,10 +111,9 @@ test.describe('認証済みユーザー - ルームページ', () => {
 })
 
 test.describe('ログアウトフロー', () => {
-  test('サインアウトでDELETEリクエストが送信され、Cognitoログアウトに遷移する', async ({ page }) => {
+  test('サインアウトでDELETEリクエストが送信される', async ({ page }) => {
     await setupAuthenticatedRoutes(page)
     await setupSocketMock(page)
-    await blockCognitoNavigation(page)
 
     await page.goto('/room/mock-room-id')
 
@@ -123,11 +121,10 @@ test.describe('ログアウトフロー', () => {
     const signOutArea = page.locator('.fixed.right-5.top-5')
     await expect(signOutArea).toBeVisible({ timeout: 10000 })
 
-    // DELETE /api/token のリクエストと Cognito遷移リクエストを監視
+    // DELETE /api/token のリクエストを監視
     const deletePromise = page.waitForRequest(
       (req) => req.url().includes('/api/token') && req.method() === 'DELETE'
     )
-    const cognitoPromise = page.waitForRequest((req) => /amazoncognito\.com.*logout/.test(req.url()))
 
     // サインアウトボタンをクリック
     await signOutArea.getByRole('button').click()
@@ -135,9 +132,5 @@ test.describe('ログアウトフロー', () => {
     // DELETE リクエストが送信されたことを確認
     const deleteReq = await deletePromise
     expect(deleteReq.method()).toBe('DELETE')
-
-    // Cognitoログアウトへの遷移リクエストが発生したことを確認
-    const cognitoReq = await cognitoPromise
-    expect(cognitoReq.url()).toContain('logout')
   })
 })

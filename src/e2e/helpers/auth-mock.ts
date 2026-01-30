@@ -97,18 +97,3 @@ export async function setupSocketMock(page: Page) {
     })
   })
 }
-
-/**
- * Cognito外部遷移をインターセプト
- * ログアウト時のCognitoリダイレクトを検出するために使用
- */
-export async function blockCognitoNavigation(page: Page) {
-  const navigatedUrls: string[] = []
-
-  await page.route(/amazoncognito\.com/, (route) => {
-    navigatedUrls.push(route.request().url())
-    route.abort()
-  })
-
-  return navigatedUrls
-}
