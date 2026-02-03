@@ -2,7 +2,7 @@ import { withSentryConfig } from '@sentry/nextjs'
 import type { NextConfig } from 'next'
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  devIndicators: process.env.HIDE_DEV_INDICATOR === 'true' ? false : undefined,
 }
 
 // local開発時はSentryを無効化
