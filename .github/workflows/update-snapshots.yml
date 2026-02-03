@@ -11,6 +11,10 @@ on:
   pull_request:
     types: [labeled]
 
+permissions:
+  contents: write
+  pull-requests: write
+
 jobs:
   update-snapshots:
     name: Update Snapshots
