@@ -5,11 +5,13 @@ interface IconButtonProps {
   active?: boolean
   onClick?: () => void
   disabled?: boolean
+  ariaLabel?: string
 }
 
-export const IconButton = ({ icon, active, onClick, disabled = false }: IconButtonProps) => {
+export const IconButton = ({ icon, active, onClick, disabled = false, ariaLabel }: IconButtonProps) => {
   return (
     <button
+      aria-label={ariaLabel}
       className={twJoin(
         'rounded-md p-2',
         active ? 'bg-neutral-100' : '',
