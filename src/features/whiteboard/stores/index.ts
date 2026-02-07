@@ -6,7 +6,7 @@ import { createKeyboardSlice } from './keyboardSlice'
 import { createHistorySlice } from './historySlice'
 import { createSocketSlice } from './socketSlice'
 
-export const useKonvaStore = create<KonvaStore>()((...a) => ({
+export const useWhiteboardStore = create<KonvaStore>()((...a) => ({
   ...createCanvasSlice(...a),
   ...createToolSlice(...a),
   ...createKeyboardSlice(...a),

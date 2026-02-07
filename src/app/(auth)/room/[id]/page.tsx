@@ -5,15 +5,15 @@ import { useState } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { useDeleteTokenMutation } from '@/features/auth'
 import { useRoomCreator } from '@/features/room'
-import { useKonvaStore } from '@/stores/konva'
-import { SocketProvider } from '@/lib/konva/components'
+import { useCanvasReady } from '@/features/whiteboard'
+import { SocketProvider } from '@/features/whiteboard/components'
 import { signOutUrl } from '@/shared/constants'
 import { IconButton } from '@/components/button'
 import { SignOutIcon } from '@/components/icons'
 import { Toast } from '@/components/toast'
 import { twMerge } from 'tailwind-merge'
 
-const WhiteBoard = dynamic(() => import('@/lib/konva').then((mod) => mod.WhiteBoard), {
+const WhiteBoard = dynamic(() => import('@/features/whiteboard').then((mod) => mod.WhiteBoard), {
   ssr: false,
 })
 
@@ -24,7 +24,7 @@ export default function MyRoomPage() {
     },
   })
 
-  const isReadyCanvas = useKonvaStore((s) => s.isReadyCanvas)
+  const isReadyCanvas = useCanvasReady()
 
   const router = useRouter()
   const params = useParams()

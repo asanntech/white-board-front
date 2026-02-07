@@ -1,16 +1,16 @@
-import { useKonvaStore, selectCanUndo, selectCanRedo } from '@/stores/konva'
+import { useWhiteboardStore, selectCanUndo, selectCanRedo } from '../stores'
 import { SelectIcon, PenIcon, UndoIcon, RedoIcon, BrushIcon, EraserIcon, RedPenIcon } from '@/components/icons'
 import { useSocketManager } from '../hooks/useSocketManager'
 import { Tool } from '../types'
 import { IconButton } from '@/components/button'
 
 export const Toolbar = () => {
-  const tool = useKonvaStore((s) => s.tool)
-  const setTool = useKonvaStore((s) => s.setTool)
-  const canUndo = useKonvaStore(selectCanUndo)
-  const canRedo = useKonvaStore(selectCanRedo)
-  const undo = useKonvaStore((s) => s.undo)
-  const redo = useKonvaStore((s) => s.redo)
+  const tool = useWhiteboardStore((s) => s.tool)
+  const setTool = useWhiteboardStore((s) => s.setTool)
+  const canUndo = useWhiteboardStore(selectCanUndo)
+  const canRedo = useWhiteboardStore(selectCanRedo)
+  const undo = useWhiteboardStore((s) => s.undo)
+  const redo = useWhiteboardStore((s) => s.redo)
 
   const { emitUndo, emitRedo } = useSocketManager()
 

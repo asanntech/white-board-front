@@ -1,9 +1,10 @@
 'use client'
 
 import { Stage, Layer, Line, Rect, Transformer } from 'react-konva'
-import { useStageControl, useKeyboardListeners } from './hooks'
-import { GraphPaperLayer, Toolbar } from './components'
-import { whiteboardColors } from './constants'
+import { useStageControl, useKeyboardListeners } from '../hooks'
+import { GraphPaperLayer } from './GraphPaperLayer'
+import { Toolbar } from './Toolbar'
+import { whiteboardColors } from '../constants'
 
 export const WhiteBoard = () => {
   const {
