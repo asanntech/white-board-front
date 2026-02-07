@@ -1,5 +1,5 @@
 import { useMutation, UseMutationOptions } from '@tanstack/react-query'
-import { AuthApi } from '../api'
+import { AuthApi } from '../infra'
 import { AuthRepository } from '../domain'
 
 type VerifyOptions = UseMutationOptions<void, Error>

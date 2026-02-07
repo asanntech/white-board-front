@@ -1,5 +1,5 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query'
-import { AuthApi } from '../api'
+import { AuthApi } from '../infra'
 import { AuthRepository } from '../domain'
 import { useUserStore } from '@/stores'
 

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query'
-import { RoomApi } from '../api'
+import { RoomApi } from '../infra'
 import { useUserStore } from '@/stores'
 import { RoomRepository } from '../domain'
 

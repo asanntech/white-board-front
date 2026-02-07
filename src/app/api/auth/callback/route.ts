@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers'
 import { addSeconds } from 'date-fns'
-import { AuthApi } from '@/features/auth/api'
+import { AuthApi } from '@/features/auth/infra'
 import { cookieOptions, TOKEN_COOKIE_KEYS } from '@/shared/utils'
 
 /**
