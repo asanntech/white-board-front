@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { useWhiteboardStore } from '../stores'
-import { AuthApi } from '@/features/auth/api'
+import { AuthApi } from '@/features/auth/infra'
 
 export const SocketProvider = ({ children, roomId }: { children: React.ReactNode; roomId: string }) => {
   const isConnected = useWhiteboardStore((s) => s.isConnected)

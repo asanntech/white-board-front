@@ -1,5 +1,5 @@
 import { ApiClient } from './api-client'
-import { AuthApi } from '@/features/auth/api'
+import { AuthApi } from '@/features/auth/infra'
 
 export const apiClient = new ApiClient({
   BASE: process.env.NEXT_PUBLIC_API_BASE_URL ?? 'http://localhost:4000',
