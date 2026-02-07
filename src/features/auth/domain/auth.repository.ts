@@ -1,4 +1,4 @@
-import { AuthEntity } from './auth.entity'
+import type { AuthEntity } from './index'
 import { AuthToken } from '@/shared/types'
 import { AuthVerifyResponseDto } from '@/lib/open-api/api-client'
 

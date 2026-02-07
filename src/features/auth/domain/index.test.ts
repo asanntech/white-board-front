@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from 'vitest'
-import { AuthEntity } from './auth.entity'
+import { AuthEntity } from './index'
 
 describe('AuthEntity', () => {
   afterEach(() => {
@@ -19,10 +19,10 @@ describe('AuthEntity', () => {
 
     const entity = new AuthEntity(params)
 
-    expect(entity.accessToken.getValue()).toBe('access-token')
-    expect(entity.idToken.getValue()).toBe('id-token')
-    expect(entity.refreshToken.getValue()).toBe('refresh-token')
-    expect(entity.expiresIn.getValue()).toBe(params.expiresIn)
+    expect(entity.accessToken).toBe('access-token')
+    expect(entity.idToken).toBe('id-token')
+    expect(entity.refreshToken).toBe('refresh-token')
+    expect(entity.expiresIn).toBe(params.expiresIn)
   })
 
   it('should throw error when accessToken is empty', () => {
@@ -36,7 +36,7 @@ describe('AuthEntity', () => {
       expiresIn: Date.now() - 1000,
     }
 
-    expect(() => new AuthEntity(params)).toThrow('Token is required')
+    expect(() => new AuthEntity(params)).toThrow('Access token is required')
   })
 
   it('should throw error when idToken is empty', () => {
@@ -50,7 +50,7 @@ describe('AuthEntity', () => {
       expiresIn: Date.now() - 1000,
     }
 
-    expect(() => new AuthEntity(params)).toThrow('Token is required')
+    expect(() => new AuthEntity(params)).toThrow('ID token is required')
   })
 
   it('should throw error when refreshToken is empty', () => {
@@ -64,7 +64,7 @@ describe('AuthEntity', () => {
       expiresIn: Date.now() - 1000,
     }
 
-    expect(() => new AuthEntity(params)).toThrow('Token is required')
+    expect(() => new AuthEntity(params)).toThrow('Refresh token is required')
   })
 
   it('should throw error when expiresIn is in the future', () => {
