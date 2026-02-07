@@ -1,1 +1,1 @@
-export * from './useRoomCreator'
+export * from './hooks/useRoomCreator'

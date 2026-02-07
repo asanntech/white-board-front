@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query'
-import { RoomApi } from './api'
+import { RoomApi } from '../api'
 import { useUserStore } from '@/stores'
+import { RoomRepository } from '../domain'
 
 type UseRoomCreatorResult = {
   createdByUserId: string
@@ -8,7 +9,7 @@ type UseRoomCreatorResult = {
 }
 
 export const useRoomCreator = (roomId: string) => {
-  const roomApi = new RoomApi()
+  const roomApi: RoomRepository = new RoomApi()
 
   const userId = useUserStore((s) => s.userId)
 
