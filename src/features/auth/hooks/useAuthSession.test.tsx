@@ -6,7 +6,7 @@ import { http, HttpResponse } from 'msw'
 import { server } from '@/mocks/server'
 import { useAuthSession } from './useAuthSession'
 import { useUserStore } from '@/stores'
-import { AuthApi } from './api'
+import { AuthApi } from '../api'
 
 const createWrapper = () => {
   const queryClient = new QueryClient({
