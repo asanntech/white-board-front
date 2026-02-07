@@ -1,5 +1,6 @@
 import { useQuery, UseQueryOptions } from '@tanstack/react-query'
-import { AuthApi } from './api'
+import { AuthApi } from '../api'
+import { AuthRepository } from '../domain'
 import { useUserStore } from '@/stores'
 
 type UseAuthSessionResult =
@@ -16,7 +17,7 @@ type UseAuthSessionResult =
 type UseAuthSessionOptions = UseQueryOptions<UseAuthSessionResult, Error>
 
 export const useAuthSession = (options?: UseAuthSessionOptions) => {
-  const authApi = new AuthApi()
+  const authApi: AuthRepository = new AuthApi()
 
   const setUserId = useUserStore((s) => s.setUserId)
 
