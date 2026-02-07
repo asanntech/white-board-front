@@ -1,12 +1,12 @@
 import { useEffect } from 'react'
-import { useKonvaStore } from '@/stores/konva'
+import { useWhiteboardStore } from '../stores'
 import { AuthApi } from '@/features/auth/api'
 
 export const SocketProvider = ({ children, roomId }: { children: React.ReactNode; roomId: string }) => {
-  const isConnected = useKonvaStore((s) => s.isConnected)
-  const initializeSocket = useKonvaStore((s) => s.initializeSocket)
-  const disconnectSocket = useKonvaStore((s) => s.disconnectSocket)
-  const socketError = useKonvaStore((s) => s.socketError)
+  const isConnected = useWhiteboardStore((s) => s.isConnected)
+  const initializeSocket = useWhiteboardStore((s) => s.initializeSocket)
+  const disconnectSocket = useWhiteboardStore((s) => s.disconnectSocket)
+  const socketError = useWhiteboardStore((s) => s.socketError)
 
   useEffect(() => {
     const init = async () => {

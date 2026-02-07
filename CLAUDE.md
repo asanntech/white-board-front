@@ -35,25 +35,25 @@ pnpm generate-api  # OpenAPI からクライアント生成
 
 ```
 src/
-├── app/                    # Next.js App Router（プレゼンテーション層）
+├── app/                    # プレゼンテーション層：ページルーティング・レイアウト（Next.js App Router）
 │   ├── api/                # API Routes (認証コールバック、トークン管理)
 │   └── (auth)/             # 認証が必要なページ群
 │       └── room/[id]/      # ホワイトボードルーム
 ├── stores/                 # グローバル状態（Zustand stores）
-│   ├── userStore.ts        # ユーザー状態
-│   └── konva/              # ホワイトボード状態（スライスパターン）
+│   └── userStore.ts        # ユーザー状態（共有カーネル）
 ├── components/             # 共通UIコンポーネント
 ├── features/               # 境界づけられたコンテキスト（業務領域単位）
 │   ├── auth/               # 認証ドメイン
 │   │   ├── domain/         # ドメイン層（エンティティ、リポジトリIF）
 │   │   ├── api/            # インフラ層（リポジトリ実装）
 │   │   └── hooks/          # アプリケーション層（ユースケース）
-│   └── room/               # ルームドメイン
+│   ├── room/               # ルームドメイン
+│   └── whiteboard/         # ホワイトボードドメイン（描画、協調編集）
+│       ├── stores/         # 状態管理（ドメイン内にカプセル化）
+│       ├── hooks/          # 描画ロジック、ズーム/パン、ソケット通信
+│       └── components/     # プレゼンテーション層：ドメイン固有UI（ツールバー等）
 ├── hooks/                  # 共通ユーティリティフック（ドメイン非依存）
 ├── lib/
-│   ├── konva/              # ホワイトボード機能（技術サブドメイン）
-│   │   ├── hooks/          # 描画ロジック、ズーム/パン、ソケット通信
-│   │   └── components/     # UI表現層（ツールバー等）
 │   ├── open-api/           # OpenAPIクライアント（自動生成）
 │   └── react-query/        # TanStack Query設定
 └── shared/                 # 共有ユーティリティ、型、定数
@@ -67,17 +67,22 @@ src/
 features/{domain}/
 ├── domain/     # ドメイン層（エンティティ、リポジトリIF）
 ├── api/        # インフラ層（リポジトリ実装）
-└── hooks/      # アプリケーション層（ユースケース）
+├── hooks/      # アプリケーション層（ユースケース）
+└── components/ # プレゼンテーション層：ドメイン固有UI（必要に応じて配置）
 ```
 
 - 依存性逆転の原則（DIP）により、ドメイン層がインフラ層に依存しない構造
 - ドメインの複雑度に応じて層の粒度を調整
+- プレゼンテーション層は2箇所に分散配置：
+  - `src/app/` - ページルーティング・レイアウト
+  - `features/{domain}/components/` - ドメイン固有UI（凝集度重視）
 
-### ホワイトボード機能 (`src/lib/konva`)
+### ホワイトボード機能 (`src/features/whiteboard`)
 
-- stores経由で状態管理（直接UIから変更しない）
+- stores/ 配下で状態管理（ドメイン内にカプセル化、直接UIから変更しない）
 - hooks経由でビジネスロジックを実行
 - componentsはロジックをhooksに委譲
+- 外部公開はhooks経由（`useCanvasReady`等）、storesは直接公開しない
 
 ## コーディング規約
 

@@ -1,7 +1,7 @@
 import { StateCreator } from 'zustand'
 import { io, Socket } from 'socket.io-client'
 import Konva from 'konva'
-import { Drawing, UndoRedoResult } from '@/lib/konva/types'
+import { Drawing, UndoRedoResult } from '../types'
 import { KonvaStore } from './types'
 
 type ServerToClientEvents = {

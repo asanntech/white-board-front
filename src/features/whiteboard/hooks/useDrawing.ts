@@ -2,13 +2,13 @@ import { useState, useMemo, useCallback } from 'react'
 import Konva from 'konva'
 import { useShallow } from 'zustand/react/shallow'
 import { useCanvasCoordinates } from './useCanvasCoordinates'
-import { useKonvaStore, selectIsSpacePressed, selectLineNodes } from '@/stores/konva'
+import { useWhiteboardStore, selectIsSpacePressed, selectLineNodes } from '../stores'
 import { lineConfig } from '../constants'
 import { Tool } from '../types'
 
 // Lineオブジェクトの描画ロジックを管理
 export const useDrawing = () => {
-  const tool = useKonvaStore((s) => s.tool)
+  const tool = useWhiteboardStore((s) => s.tool)
 
   const drawingType = useMemo(() => {
     return tool === 'pen' || tool === 'redPen' || tool === 'marker' || tool === 'eraser' ? tool : undefined
@@ -18,10 +18,10 @@ export const useDrawing = () => {
     return drawingType === 'pen' || drawingType === 'redPen' || drawingType === 'marker'
   }, [drawingType])
 
-  const isSpacePressed = useKonvaStore(selectIsSpacePressed)
+  const isSpacePressed = useWhiteboardStore(selectIsSpacePressed)
 
-  const displayLineNodes = useKonvaStore(useShallow(selectLineNodes))
-  const pushToHistory = useKonvaStore((s) => s.pushToHistory)
+  const displayLineNodes = useWhiteboardStore(useShallow(selectLineNodes))
+  const pushToHistory = useWhiteboardStore((s) => s.pushToHistory)
 
   const { getPointerPosition } = useCanvasCoordinates()
 

@@ -1,15 +1,15 @@
 import { useCallback } from 'react'
-import { useKonvaStore } from '@/stores/konva'
+import { useWhiteboardStore } from '../stores'
 import { Drawing, UndoRedoResult } from '../types'
 
 // Socket接続を管理
 export const useSocketManager = () => {
-  const socket = useKonvaStore((s) => s.socket)
-  const roomId = useKonvaStore((s) => s.roomId)
-  const isConnected = useKonvaStore((s) => s.isConnected)
-  const error = useKonvaStore((s) => s.socketError)
-  const initializeSocket = useKonvaStore((s) => s.initializeSocket)
-  const disconnectSocket = useKonvaStore((s) => s.disconnectSocket)
+  const socket = useWhiteboardStore((s) => s.socket)
+  const roomId = useWhiteboardStore((s) => s.roomId)
+  const isConnected = useWhiteboardStore((s) => s.isConnected)
+  const error = useWhiteboardStore((s) => s.socketError)
+  const initializeSocket = useWhiteboardStore((s) => s.initializeSocket)
+  const disconnectSocket = useWhiteboardStore((s) => s.disconnectSocket)
 
   const emitDrawing = useCallback(
     (drawings: Drawing[]) => {

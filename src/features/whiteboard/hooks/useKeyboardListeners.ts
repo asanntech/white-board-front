@@ -1,17 +1,17 @@
 import { useEffect, RefObject } from 'react'
 import Konva from 'konva'
-import { useKonvaStore, selectCanUndo, selectCanRedo } from '@/stores/konva'
+import { useWhiteboardStore, selectCanUndo, selectCanRedo } from '../stores'
 import { useSocketManager } from './useSocketManager'
 import { Drawing } from '../types'
 
 export const useKeyboardListeners = (transformerRef: RefObject<Konva.Transformer | null>) => {
-  const setKeyPress = useKonvaStore((s) => s.setKeyPress)
-  const clearKeyPressState = useKonvaStore((s) => s.clearKeyPressState)
-  const undo = useKonvaStore((s) => s.undo)
-  const redo = useKonvaStore((s) => s.redo)
-  const canUndo = useKonvaStore(selectCanUndo)
-  const canRedo = useKonvaStore(selectCanRedo)
-  const removeLine = useKonvaStore((s) => s.removeLine)
+  const setKeyPress = useWhiteboardStore((s) => s.setKeyPress)
+  const clearKeyPressState = useWhiteboardStore((s) => s.clearKeyPressState)
+  const undo = useWhiteboardStore((s) => s.undo)
+  const redo = useWhiteboardStore((s) => s.redo)
+  const canUndo = useWhiteboardStore(selectCanUndo)
+  const canRedo = useWhiteboardStore(selectCanRedo)
+  const removeLine = useWhiteboardStore((s) => s.removeLine)
 
   const { emitRemove, emitUndo, emitRedo } = useSocketManager()
 

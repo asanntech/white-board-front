@@ -16,7 +16,7 @@ import { signInUrl } from '@/shared/constants'
 import { queryClient } from '@/lib/react-query'
 import { useMinLoadingTime } from '@/hooks'
 
-const WhiteBoard = dynamic(() => import('@/lib/konva').then((mod) => mod.WhiteBoard), {
+const WhiteBoard = dynamic(() => import('@/features/whiteboard').then((mod) => mod.WhiteBoard), {
   ssr: false,
 })
 

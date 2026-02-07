@@ -7,7 +7,7 @@ import { useDrawing } from './useDrawing'
 import { useSelectionRange } from './useSelectionRange'
 import { useSocketManager } from './useSocketManager'
 import { useMultiTouch } from './useMultiTouch'
-import { useKonvaStore, selectIsSpacePressed } from '@/stores/konva'
+import { useWhiteboardStore, selectIsSpacePressed } from '../stores'
 import { canvasSize } from '../constants'
 import { Drawing } from '../types'
 
@@ -15,8 +15,8 @@ export const useStageControl = () => {
   const stageRef = useRef<Konva.Stage>(null)
   const transformerRef = useRef<Konva.Transformer>(null)
 
-  const tool = useKonvaStore((s) => s.tool)
-  const isSpacePressed = useKonvaStore(selectIsSpacePressed)
+  const tool = useWhiteboardStore((s) => s.tool)
+  const isSpacePressed = useWhiteboardStore(selectIsSpacePressed)
 
   const { width, height } = useViewportSize()
 
@@ -150,7 +150,7 @@ export const useStageControl = () => {
     transformedStateRef.current = true
   }, [])
 
-  const removeLine = useKonvaStore((s) => s.removeLine)
+  const removeLine = useWhiteboardStore((s) => s.removeLine)
 
   const handleLinePointerOver = useCallback(
     (e: KonvaEventObject<PointerEvent>) => {
@@ -177,7 +177,7 @@ export const useStageControl = () => {
     if (selectionRectangle.visible) endSelection()
   }, [endSelection, selectionRectangle.visible, clearActivePointers])
 
-  const pushToHistory = useKonvaStore((s) => s.pushToHistory)
+  const pushToHistory = useWhiteboardStore((s) => s.pushToHistory)
 
   // 変形ツールに伴うノードの変更を履歴に追加
   const pushTransformToHistory = useCallback(
@@ -196,7 +196,7 @@ export const useStageControl = () => {
     [emitTransform, pushToHistory]
   )
 
-  const setIsReadyCanvas = useKonvaStore((s) => s.setIsReadyCanvas)
+  const setIsReadyCanvas = useWhiteboardStore((s) => s.setIsReadyCanvas)
 
   // 初期状態でカメラを中央に配置（初回のみ）
   useEffect(() => {

@@ -1,6 +1,6 @@
 import { StateCreator } from 'zustand'
 import Konva from 'konva'
-import { Drawing, UndoRedoResult } from '@/lib/konva/types'
+import { Drawing, UndoRedoResult } from '../types'
 import { KonvaStore } from './types'
 
 const MAX_HISTORY_SIZE = 30
