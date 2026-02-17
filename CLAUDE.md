@@ -49,8 +49,8 @@ src/
 │   │   └── hooks/          # アプリケーション層（ユースケース）
 │   ├── room/               # ルームドメイン
 │   └── whiteboard/         # ホワイトボードドメイン（描画、協調編集）
-│       ├── stores/         # 状態管理（ドメイン内にカプセル化）
-│       ├── hooks/          # 描画ロジック、ズーム/パン、ソケット通信
+│       ├── stores/         # 状態管理の内部実装（slices）
+│       ├── hooks/          # アプリケーション層：useWhiteboardStore、描画ロジック等
 │       └── components/     # プレゼンテーション層：ドメイン固有UI（ツールバー等）
 ├── hooks/                  # 共通ユーティリティフック（ドメイン非依存）
 ├── lib/
@@ -79,10 +79,10 @@ features/{domain}/
 
 ### ホワイトボード機能 (`src/features/whiteboard`)
 
-- stores/ 配下で状態管理（ドメイン内にカプセル化、直接UIから変更しない）
-- hooks経由でビジネスロジックを実行
+- stores/ はslice（状態管理の内部実装）を配置
+- hooks/ に `useWhiteboardStore` を配置（sliceをまとめたエントリーポイント）
+- 外部公開はhooks経由（`useWhiteboardStore`, `useCanvasReady`等）
 - componentsはロジックをhooksに委譲
-- 外部公開はhooks経由（`useCanvasReady`等）、storesは直接公開しない
 
 ## コーディング規約
 

@@ -1,3 +1,4 @@
+export * from './useWhiteboardStore'
 export * from './useKeyboardListeners'
 export * from './useScaleAtPointer'
 export * from './useViewportSize'
