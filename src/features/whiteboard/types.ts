@@ -20,11 +20,6 @@ export type Drawing = {
   opacity?: number
 }
 
-export type UndoRedoResult = {
-  action: 'delete' | 'restore' | 'transform'
-  objects: Drawing[]
-}
-
 // Yjs payload types
 export type YjsUpdatePayload = {
   roomId: string
