@@ -5,5 +5,7 @@ export {
   selectLineNodes,
   selectCanUndo,
   selectCanRedo,
+  selectCanYjsUndo,
+  selectCanYjsRedo,
 } from '../hooks/useWhiteboardStore'
 export type { ClientToServerEvents } from '../hooks/useWhiteboardStore'

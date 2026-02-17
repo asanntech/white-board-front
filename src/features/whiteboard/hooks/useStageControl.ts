@@ -5,7 +5,6 @@ import { useScaleAtPointer } from './useScaleAtPointer'
 import { useViewportSize } from './useViewportSize'
 import { useDrawing } from './useDrawing'
 import { useSelectionRange } from './useSelectionRange'
-import { useSocketManager } from './useSocketManager'
 import { useMultiTouch } from './useMultiTouch'
 import { useWhiteboardStore, selectIsSpacePressed } from '../stores'
 import { canvasSize } from '../constants'
@@ -27,7 +26,9 @@ export const useStageControl = () => {
   const { selectionRectRef, selectionRectangle, displaySelectionRect, startSelection, updateSelection, endSelection } =
     useSelectionRange()
 
-  const { emitRemove, emitDrawing, emitTransform, emitDrawingEnd } = useSocketManager()
+  const addDrawing = useWhiteboardStore((s) => s.addDrawing)
+  const updateDrawing = useWhiteboardStore((s) => s.updateDrawing)
+  const removeDrawings = useWhiteboardStore((s) => s.removeDrawings)
 
   const { clearActivePointers, startPanWithPinchZoom, panWithPinchZoom } = useMultiTouch()
 
@@ -70,12 +71,10 @@ export const useStageControl = () => {
       if (tool === 'select') {
         startSelection(e)
       } else {
-        const newLineNode = startDrawing(e)
-        const drawings = newLineNode ? [newLineNode.attrs as Drawing] : []
-        if (newLineNode && isPenMode) emitDrawing(drawings)
+        startDrawing(e)
       }
     },
-    [tool, isPenMode, startDrawing, startSelection, emitDrawing]
+    [tool, startDrawing, startSelection]
   )
 
   const handleTouchStart = useCallback(
@@ -132,10 +131,12 @@ export const useStageControl = () => {
       transformer.nodes(lines)
     } else {
       const newLineNode = finishDrawing()
-      const drawings = newLineNode?.attrs as Drawing | undefined
-      if (newLineNode && isPenMode && drawings) emitDrawingEnd(drawings)
+      const drawing = newLineNode?.attrs as Drawing | undefined
+      if (newLineNode && isPenMode && drawing) {
+        addDrawing(drawing)
+      }
     }
-  }, [tool, emitDrawingEnd, isPenMode, finishDrawing, endSelection, getIntersectingLines])
+  }, [tool, isPenMode, finishDrawing, endSelection, getIntersectingLines, addDrawing])
 
   const handleTouchEnd = useCallback(
     (e: KonvaEventObject<TouchEvent>) => {
@@ -150,18 +151,14 @@ export const useStageControl = () => {
     transformedStateRef.current = true
   }, [])
 
-  const removeLine = useWhiteboardStore((s) => s.removeLine)
-
   const handleLinePointerOver = useCallback(
     (e: KonvaEventObject<PointerEvent>) => {
       if (tool === 'eraser' && isDrawing) {
         const id = e.target.attrs.id
-        removeLine(id)
-        const drawings = [e.target.attrs as Drawing]
-        emitRemove(drawings)
+        removeDrawings([id])
       }
     },
-    [tool, isDrawing, emitRemove, removeLine]
+    [tool, isDrawing, removeDrawings]
   )
 
   // マウスポインターが画面外に出た場合の処理
@@ -177,8 +174,6 @@ export const useStageControl = () => {
     if (selectionRectangle.visible) endSelection()
   }, [endSelection, selectionRectangle.visible, clearActivePointers])
 
-  const pushToHistory = useWhiteboardStore((s) => s.pushToHistory)
-
   // 変形ツールに伴うノードの変更を履歴に追加
   const pushTransformToHistory = useCallback(
     (e: Konva.KonvaEventObject<Event>) => {
@@ -187,13 +182,13 @@ export const useStageControl = () => {
         return
       }
 
-      const newNodes = e.currentTarget.nodes().map((n) => n.clone()) as Konva.Line[]
-      pushToHistory(newNodes)
-
-      const drawings = newNodes.map((n) => n.attrs as Drawing)
-      emitTransform(drawings)
+      const nodes = e.currentTarget.nodes() as Konva.Line[]
+      nodes.forEach((node) => {
+        const drawing = node.attrs as Drawing
+        updateDrawing(drawing)
+      })
     },
-    [emitTransform, pushToHistory]
+    [updateDrawing]
   )
 
   const setIsReadyCanvas = useWhiteboardStore((s) => s.setIsReadyCanvas)
