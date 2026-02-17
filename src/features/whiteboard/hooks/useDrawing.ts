@@ -6,7 +6,6 @@ import { useWhiteboardStore, selectIsSpacePressed, selectLineNodes } from '../st
 import { lineConfig } from '../constants'
 import { Tool } from '../types'
 
-// Lineオブジェクトの描画ロジックを管理
 export const useDrawing = () => {
   const tool = useWhiteboardStore((s) => s.tool)
 
@@ -21,15 +20,12 @@ export const useDrawing = () => {
   const isSpacePressed = useWhiteboardStore(selectIsSpacePressed)
 
   const displayLineNodes = useWhiteboardStore(useShallow(selectLineNodes))
-  const pushToHistory = useWhiteboardStore((s) => s.pushToHistory)
 
   const { getPointerPosition } = useCanvasCoordinates()
 
-  // 一時的なLineオブジェクトを管理
-  // 一筆書き後にまとめて履歴に追加するために使用
+  // 描画中の一時的なLineオブジェクト
   const [tempLineNode, setTempLineNode] = useState<Konva.Line | null>(null)
 
-  // 描画を開始する
   const startDrawing = useCallback(
     (e: Konva.KonvaEventObject<PointerEvent>) => {
       if (isSpacePressed || !drawingType) return
@@ -48,7 +44,6 @@ export const useDrawing = () => {
     [isSpacePressed, drawingType, getPointerPosition]
   )
 
-  // 描画を継続する
   const continueDrawing = useCallback(
     (e: Konva.KonvaEventObject<PointerEvent>) => {
       const stage = e.target.getStage()
@@ -67,22 +62,13 @@ export const useDrawing = () => {
     [getPointerPosition]
   )
 
-  // 描画を終了する
-  const finishDrawing = useCallback(
-    (isPushToHistory = true) => {
-      const newLineNode = tempLineNode as Konva.Line
-      if (!newLineNode) return
-
-      setTempLineNode(null)
-
-      if (isPenMode && isPushToHistory) {
-        pushToHistory(newLineNode)
-      }
-
-      return newLineNode
-    },
-    [isPenMode, tempLineNode, pushToHistory]
-  )
+  // 描画を終了し、完成したLineNodeを返す
+  // Y.Docへの追加は呼び出し元（useStageControl）で行う
+  const finishDrawing = useCallback(() => {
+    const newLineNode = tempLineNode as Konva.Line
+    setTempLineNode(null)
+    return newLineNode ?? null
+  }, [tempLineNode])
 
   const lineNodes = useMemo(() => {
     return tempLineNode && isPenMode ? [...displayLineNodes, tempLineNode] : displayLineNodes
@@ -103,7 +89,6 @@ export const useDrawing = () => {
   }
 }
 
-// Lineオブジェクトを作成する関数
 function createLineObject(type: Extract<Tool, 'pen' | 'redPen' | 'marker' | 'eraser'>, points: number[]): Konva.Line {
   return new Konva.Line({
     id: `${type}-${Date.now()}-${Math.random()}`,

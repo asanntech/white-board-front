@@ -3,8 +3,6 @@ export {
   useWhiteboardStore,
   selectIsSpacePressed,
   selectLineNodes,
-  selectCanUndo,
-  selectCanRedo,
   selectCanYjsUndo,
   selectCanYjsRedo,
 } from '../hooks/useWhiteboardStore'

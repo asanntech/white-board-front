@@ -1,5 +1,6 @@
 import { StateCreator } from 'zustand'
 import * as Y from 'yjs'
+import Konva from 'konva'
 import { Drawing } from '../types'
 import { KonvaStore } from './types'
 
@@ -179,6 +180,14 @@ export const selectYjsDrawings = (state: KonvaStore): Drawing[] => {
 
   const drawings = doc.getMap<Drawing>('drawings')
   return Array.from(drawings.values())
+}
+
+export const selectLineNodes = (state: KonvaStore): Konva.Line[] => {
+  const doc = state.yDoc
+  if (!doc) return []
+
+  const drawings = doc.getMap<Drawing>('drawings')
+  return Array.from(drawings.values()).map((drawing) => new Konva.Line(drawing))
 }
 
 export const selectCanYjsUndo = (state: KonvaStore): boolean => {

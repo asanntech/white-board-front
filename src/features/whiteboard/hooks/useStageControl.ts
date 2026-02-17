@@ -86,7 +86,7 @@ export const useStageControl = () => {
       if (selectionRectangle.visible) {
         endSelection()
       } else {
-        finishDrawing(false)
+        finishDrawing()
       }
 
       startPanWithPinchZoom(stageRef.current, e.evt.touches)
