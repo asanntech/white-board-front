@@ -1,7 +1,7 @@
 import { StateCreator } from 'zustand'
 import { io, Socket } from 'socket.io-client'
 import Konva from 'konva'
-import { Drawing, UndoRedoResult } from '../types'
+import { Drawing, UndoRedoResult, YjsUpdatePayload, YjsSyncInitPayload } from '../types'
 import { KonvaStore } from './types'
 
 type ServerToClientEvents = {
@@ -13,6 +13,8 @@ type ServerToClientEvents = {
   redoDrawings: (redoResult: UndoRedoResult) => void
   roomData: (drawings: Drawing[]) => void
   userEntered: (userId: string) => void
+  'yjs-sync-init': (payload: YjsSyncInitPayload) => void
+  'yjs-update': (payload: YjsUpdatePayload) => void
 }
 
 export type ClientToServerEvents = {
@@ -23,6 +25,7 @@ export type ClientToServerEvents = {
   remove: (params: { roomId: string; drawings: Drawing[] }) => void
   undo: (params: { roomId: string; undoResult: UndoRedoResult }) => void
   redo: (params: { roomId: string; redoResult: UndoRedoResult }) => void
+  'yjs-update': (payload: YjsUpdatePayload) => void
 }
 
 export type SocketSlice = {

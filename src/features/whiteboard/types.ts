@@ -24,3 +24,14 @@ export type UndoRedoResult = {
   action: 'delete' | 'restore' | 'transform'
   objects: Drawing[]
 }
+
+// Yjs payload types
+export type YjsUpdatePayload = {
+  roomId: string
+  update: string // Base64 encoded
+}
+
+export type YjsSyncInitPayload = {
+  roomId: string
+  state: string // Base64 encoded
+}
