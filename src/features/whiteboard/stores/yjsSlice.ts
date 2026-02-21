@@ -8,6 +8,7 @@ export type YjsSlice = {
   yDoc: Y.Doc | null
   undoManager: Y.UndoManager | null
   isYjsSynced: boolean
+  yjsVersion: number
 
   initYjs: () => void
   applyInitialState: (state: Uint8Array) => void
@@ -52,6 +53,7 @@ export const createYjsSlice: StateCreator<KonvaStore, [], [], YjsSlice> = (set, 
     yDoc: null,
     undoManager: null,
     isYjsSynced: false,
+    yjsVersion: 0,
 
     initYjs: () => {
       const currentDoc = get().yDoc
@@ -63,13 +65,16 @@ export const createYjsSlice: StateCreator<KonvaStore, [], [], YjsSlice> = (set, 
       const drawings = doc.getMap<Drawing>('drawings')
 
       // 'local'オリジンの操作のみUndoManagerで追跡
+      // captureTimeout: 0 で各操作を個別のundo項目として記録
       const undoManager = new Y.UndoManager(drawings, {
         trackedOrigins: new Set(['local']),
+        captureTimeout: 0,
       })
 
-      // ローカル、undo、redo操作時にSocket送信
+      // ローカル操作およびundo/redo時にSocket送信
       doc.on('update', (update: Uint8Array, origin: unknown) => {
-        if (origin === 'local' || origin === 'undo' || origin === 'redo') {
+        // UndoManagerはundo/redo時に自身をoriginとして使用する
+        if (origin === 'local' || origin === undoManager) {
           emitYjsUpdate(update)
         }
       })
@@ -82,7 +87,7 @@ export const createYjsSlice: StateCreator<KonvaStore, [], [], YjsSlice> = (set, 
       if (!doc) return
 
       Y.applyUpdate(doc, state)
-      set({ isYjsSynced: true })
+      set((s) => ({ isYjsSynced: true, yjsVersion: s.yjsVersion + 1 }))
     },
 
     applyUpdate: (update: Uint8Array) => {
@@ -91,6 +96,7 @@ export const createYjsSlice: StateCreator<KonvaStore, [], [], YjsSlice> = (set, 
 
       // リモートからの更新はUndoManagerで追跡しない
       Y.applyUpdate(doc, update, 'remote')
+      set((state) => ({ yjsVersion: state.yjsVersion + 1 }))
     },
 
     destroyYjs: () => {
@@ -116,6 +122,8 @@ export const createYjsSlice: StateCreator<KonvaStore, [], [], YjsSlice> = (set, 
       doc.transact(() => {
         drawings.set(drawing.id, drawing)
       }, 'local')
+
+      set((state) => ({ yjsVersion: state.yjsVersion + 1 }))
     },
 
     updateDrawing: (drawing: Drawing) => {
@@ -127,6 +135,8 @@ export const createYjsSlice: StateCreator<KonvaStore, [], [], YjsSlice> = (set, 
       doc.transact(() => {
         drawings.set(drawing.id, drawing)
       }, 'local')
+
+      set((state) => ({ yjsVersion: state.yjsVersion + 1 }))
     },
 
     removeDrawings: (ids: string[]) => {
@@ -140,26 +150,24 @@ export const createYjsSlice: StateCreator<KonvaStore, [], [], YjsSlice> = (set, 
           drawings.delete(id)
         })
       }, 'local')
+
+      set((state) => ({ yjsVersion: state.yjsVersion + 1 }))
     },
 
     yjsUndo: () => {
       const undoManager = get().undoManager
-      const doc = get().yDoc
-      if (!undoManager || !doc) return
+      if (!undoManager) return
 
-      doc.transact(() => {
-        undoManager.undo()
-      }, 'undo')
+      undoManager.undo()
+      set((state) => ({ yjsVersion: state.yjsVersion + 1 }))
     },
 
     yjsRedo: () => {
       const undoManager = get().undoManager
-      const doc = get().yDoc
-      if (!undoManager || !doc) return
+      if (!undoManager) return
 
-      doc.transact(() => {
-        undoManager.redo()
-      }, 'redo')
+      undoManager.redo()
+      set((state) => ({ yjsVersion: state.yjsVersion + 1 }))
     },
 
     canYjsUndo: () => {
@@ -182,18 +190,28 @@ export const selectYjsDrawings = (state: KonvaStore): Drawing[] => {
   return Array.from(drawings.values())
 }
 
-export const selectLineNodes = (state: KonvaStore): Konva.Line[] => {
+export const selectDrawings = (state: KonvaStore): Drawing[] => {
+  // yjsVersionを参照してZustandの再レンダリングをトリガー
+  void state.yjsVersion
   const doc = state.yDoc
   if (!doc) return []
 
   const drawings = doc.getMap<Drawing>('drawings')
-  return Array.from(drawings.values()).map((drawing) => new Konva.Line(drawing))
+  return Array.from(drawings.values())
+}
+
+export const selectLineNodes = (state: KonvaStore): Konva.Line[] => {
+  return selectDrawings(state).map((drawing) => new Konva.Line(drawing))
 }
 
 export const selectCanYjsUndo = (state: KonvaStore): boolean => {
+  // yjsVersionを参照してZustandの再レンダリングをトリガー
+  void state.yjsVersion
   return state.undoManager?.canUndo() ?? false
 }
 
 export const selectCanYjsRedo = (state: KonvaStore): boolean => {
+  // yjsVersionを参照してZustandの再レンダリングをトリガー
+  void state.yjsVersion
   return state.undoManager?.canRedo() ?? false
 }

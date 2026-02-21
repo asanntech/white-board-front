@@ -37,17 +37,14 @@ export const createSocketSlice: StateCreator<KonvaStore, [], [], SocketSlice> = 
       currentSocket.disconnect()
     }
 
-    const newSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
-      process.env.NEXT_PUBLIC_WS_WHITE_BOARD,
-      {
-        transports: ['websocket'],
-        reconnectionAttempts: 5,
-        reconnectionDelay: 1000,
-        reconnectionDelayMax: 5000,
-        timeout: 10000,
-        auth: { token },
-      }
-    )
+    const newSocket: Socket<ServerToClientEvents, ClientToServerEvents> = io(process.env.NEXT_PUBLIC_WS_WHITE_BOARD, {
+      transports: ['websocket'],
+      reconnectionAttempts: 5,
+      reconnectionDelay: 1000,
+      reconnectionDelayMax: 5000,
+      timeout: 10000,
+      auth: { token },
+    })
 
     newSocket.on('connect', () => {
       set({ isConnected: true, socketError: null, roomId })

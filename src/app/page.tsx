@@ -16,9 +16,10 @@ import { signInUrl } from '@/shared/constants'
 import { queryClient } from '@/lib/react-query'
 import { useMinLoadingTime } from '@/hooks'
 
-const WhiteBoard = dynamic(() => import('@/features/whiteboard').then((mod) => mod.WhiteBoard), {
-  ssr: false,
-})
+const FreeTrialWhiteBoard = dynamic(
+  () => import('@/features/whiteboard/components').then((mod) => mod.FreeTrialWhiteBoard),
+  { ssr: false }
+)
 
 export default function Home() {
   return (
@@ -77,7 +78,7 @@ const Contents = () => {
           <IconButton icon={<SignInIcon />} onClick={signIn} />
         </div>
       )}
-      <WhiteBoard />
+      <FreeTrialWhiteBoard />
       <div className="relative z-10">
         <Toast showToast={showToast} toastMessage="SignInが必要です" />
       </div>

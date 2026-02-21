@@ -2,7 +2,8 @@ import { useState, useMemo, useCallback } from 'react'
 import Konva from 'konva'
 import { useShallow } from 'zustand/react/shallow'
 import { useCanvasCoordinates } from './useCanvasCoordinates'
-import { useWhiteboardStore, selectIsSpacePressed, selectLineNodes } from '../stores'
+import { useWhiteboardStore, selectIsSpacePressed } from '../stores'
+import { selectDrawings } from '../stores/yjsSlice'
 import { lineConfig } from '../constants'
 import { Tool } from '../types'
 
@@ -19,7 +20,10 @@ export const useDrawing = () => {
 
   const isSpacePressed = useWhiteboardStore(selectIsSpacePressed)
 
-  const displayLineNodes = useWhiteboardStore(useShallow(selectLineNodes))
+  const drawings = useWhiteboardStore(useShallow(selectDrawings))
+  const displayLineNodes = useMemo(() => {
+    return drawings.map((drawing) => new Konva.Line(drawing))
+  }, [drawings])
 
   const { getPointerPosition } = useCanvasCoordinates()
 
