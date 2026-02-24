@@ -1,18 +1,15 @@
-import { useWhiteboardStore, selectCanUndo, selectCanRedo } from '../stores'
+import { useWhiteboardStore, selectCanYjsUndo, selectCanYjsRedo } from '../stores'
 import { SelectIcon, PenIcon, UndoIcon, RedoIcon, BrushIcon, EraserIcon, RedPenIcon } from '@/components/icons'
-import { useSocketManager } from '../hooks/useSocketManager'
 import { Tool } from '../types'
 import { IconButton } from '@/components/button'
 
 export const Toolbar = () => {
   const tool = useWhiteboardStore((s) => s.tool)
   const setTool = useWhiteboardStore((s) => s.setTool)
-  const canUndo = useWhiteboardStore(selectCanUndo)
-  const canRedo = useWhiteboardStore(selectCanRedo)
-  const undo = useWhiteboardStore((s) => s.undo)
-  const redo = useWhiteboardStore((s) => s.redo)
-
-  const { emitUndo, emitRedo } = useSocketManager()
+  const canUndo = useWhiteboardStore(selectCanYjsUndo)
+  const canRedo = useWhiteboardStore(selectCanYjsRedo)
+  const yjsUndo = useWhiteboardStore((s) => s.yjsUndo)
+  const yjsRedo = useWhiteboardStore((s) => s.yjsRedo)
 
   const tools: { icon: React.ReactNode; id: Tool; ariaLabel: string }[] = [
     { icon: <PenIcon />, id: 'pen', ariaLabel: 'Pen' },
@@ -26,20 +23,14 @@ export const Toolbar = () => {
       icon: <UndoIcon />,
       id: 'undo',
       ariaLabel: 'Undo',
-      onClick: () => {
-        const results = undo()
-        if (results) emitUndo(results)
-      },
+      onClick: () => yjsUndo(),
       disabled: !canUndo,
     },
     {
       icon: <RedoIcon />,
       id: 'redo',
       ariaLabel: 'Redo',
-      onClick: () => {
-        const results = redo()
-        if (results) emitRedo(results)
-      },
+      onClick: () => yjsRedo(),
       disabled: !canRedo,
     },
   ]

@@ -87,11 +87,21 @@ export async function setupSocketMock(page: Page) {
         return
       }
 
-      // Socket.IO EVENT: join → roomData応答
+      // Socket.IO EVENT: join → yjs-sync-init応答
       if (message.startsWith('42')) {
         const payload = JSON.parse(message.slice(2))
         if (Array.isArray(payload) && payload[0] === 'join') {
-          ws.send('42' + JSON.stringify(['roomData', []]))
+          // 空のY.Doc状態をBase64エンコード（Uint8Array [0, 0] = "AAA="）
+          ws.send(
+            '42' +
+              JSON.stringify([
+                'yjs-sync-init',
+                {
+                  roomId: 'mock-room-id',
+                  state: 'AAA=',
+                },
+              ])
+          )
         }
       }
     })

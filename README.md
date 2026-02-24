@@ -4,7 +4,7 @@
 
 #### PC(オーナー)と iPhone(参加者)による共同編集
 
-- Socket 通信によるリアルタイム描画同期
+- Yjs (CRDT) + Socket 通信によるリアルタイム描画同期
 - 複数人での協調描画
 - セキュアな認証基盤（Cognito + JWT）
 - クラウド永続化（DynamoDB + S3）
@@ -49,6 +49,7 @@ pnpm dev
 - Zustand
 - TanStack Query
 - Socket.IO
+- Yjs (CRDT)
 
 ### バックエンド / インフラ
 
@@ -206,8 +207,8 @@ sequenceDiagram
 
 #### 協調機能
 
-- **リアルタイム同期**: Socket 通信による描画の同期
-- **履歴管理**: Undo/Redo 機能
+- **リアルタイム同期**: Yjs (CRDT) + Socket 通信によるコンフリクトフリーな描画同期
+- **履歴管理**: Y.UndoManager による Undo/Redo 機能
 - **ルーム管理**: 複数ユーザーでの協調作業
 
 #### 操作機能
@@ -218,45 +219,39 @@ sequenceDiagram
 
 ### リアルタイム通信フロー
 
+Yjs (CRDT) を使用したコンフリクトフリーな同期を実現。
+
 ```mermaid
 sequenceDiagram
     participant U1 as ユーザーA
-    participant WA as ホワイトボードA
-    participant S as Socket Server <br>（Nest.js）
+    participant WA as ホワイトボードA<br>(Y.Doc)
+    participant S as Socket Server<br>（Nest.js）
     participant DB as DynamoDB
     participant S3 as S3
-    participant WB as ホワイトボードB
+    participant WB as ホワイトボードB<br>(Y.Doc)
     participant U2 as ユーザーB
 
-    Note over U1,U2: 描画の同期と永続化
-    U1->>WA: 描画操作
-    WA->>WA: ローカル状態更新
-    WA->>S: 描画データ送信 (drawing/transform/remove)
-    S->>DB: 描画データをDynamoDBに保存
-    S->>WB: 描画データ配信
-    WB->>WB: 状態更新
+    Note over U1,U2: ルーム参加時の初期同期
+    U1->>WA: ルーム参加
+    WA->>S: ルーム参加要求 (join)
+    S->>DB: Y.Doc状態取得
+    DB->>S: Base64エンコードされた状態返却
+    S->>WA: 初期状態配信 (yjs-sync-init)
+    WA->>WA: Y.applyUpdate で状態復元
+    WA->>U1: UI更新
+
+    Note over U1,U2: 描画操作・Undo/Redoの同期と永続化
+    U1->>WA: 描画操作 / Undo / Redo
+    WA->>WA: Y.Doc更新
+    WA->>S: 差分データ送信 (yjs-update)
+    S->>DB: Y.Doc差分をDynamoDBに保存
+    S->>WB: 差分データ配信 (yjs-update)
+    WB->>WB: Y.applyUpdate で状態更新
     WB->>U2: UI更新
 
-    Note over U1,U2: ルーム参加時のデータ取得
-    U2->>WB: ルーム参加
-    WB->>S: ルーム参加要求 (join)
-    S->>DB: ルームデータ取得
-    DB->>S: 既存の描画データ返却
-    S->>WB: ルームデータ配信 (roomData)
-    WB->>WB: 既存描画の復元
-    WB->>U2: UI更新
-
-    Note over U1,U2: Undo/Redo操作の同期
-    U1->>WA: Undo/Redo操作
-    WA->>WA: ローカル履歴更新
-    WA->>S: Undo/Redoデータ送信
-    S->>DB: 履歴データをDynamoDBに保存
-    S->>WB: Undo/Redoデータ配信
-    WB->>WB: 履歴状態更新
-    WB->>U2: UI更新
-
-    Note over U1,U2: スナップショット保存
-    S->>S: 定期的なスナップショット生成
+    Note over U1,U2: スナップショット保存（差分が1MB以上 または 100件以上蓄積時）
+    S->>S: スナップショット生成
     S->>S3: キャンバス画像をS3に保存
     S3->>S: 保存完了
+    S->>DB: 差分レコード削除
 ```

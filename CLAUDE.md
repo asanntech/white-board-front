@@ -17,7 +17,7 @@
 - **状態管理**: Zustand
 - **データフェッチ**: TanStack Query
 - **描画ライブラリ**: Konva (react-konva)
-- **リアルタイム通信**: Socket.IO
+- **リアルタイム同期**: Yjs (CRDT) + Socket.IO
 - **スタイリング**: Tailwind CSS v4
 - **パッケージマネージャー**: pnpm
 
@@ -122,8 +122,12 @@ features/{domain}/
 ## リアルタイム通信
 
 - Socket.IOでサーバー（Nest.js）と接続
-- 描画操作はローカル状態更新後、サーバーへ送信
-- 他ユーザーからの描画データを受信して状態更新
+- **Yjs (CRDT)** によるコンフリクトフリーな状態同期
+- Y.Doc: 描画データの管理
+- Y.UndoManager: Undo/Redo履歴の管理
+- Socket イベント:
+  - `yjs-sync-init`: ルーム参加時の初期状態同期（Base64エンコード）
+  - `yjs-update`: 描画操作の差分同期（Base64エンコード）
 
 ## 関連リポジトリ
 

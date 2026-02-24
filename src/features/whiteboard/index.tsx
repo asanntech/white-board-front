@@ -1,2 +1,2 @@
-export { WhiteBoard } from './components'
+export { WhiteBoard, FreeTrialWhiteBoard } from './components'
 export { useCanvasReady } from './hooks'
