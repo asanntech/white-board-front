@@ -7,6 +7,7 @@ import { ErrorBoundary } from 'react-error-boundary'
 import { useAuthSession } from '@/features/auth'
 import { ErrorFallback } from '@/components/error'
 import { Loading } from '@/components/loading'
+import { UpdateNotificationModal } from '@/components/modal'
 import { queryClient } from '@/lib/react-query'
 import { useMinLoadingTime } from '@/hooks'
 
@@ -57,5 +58,10 @@ const Contents = ({ children }: Props) => {
 
   if (isAuthLoading || !authData?.hasToken || !isMinTimeElapsed) return <Loading />
 
-  return children
+  return (
+    <>
+      <UpdateNotificationModal />
+      {children}
+    </>
+  )
 }
